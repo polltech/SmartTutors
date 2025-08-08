@@ -43,20 +43,19 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
-# Define some basic routes
+# Define routes - THIS IS CRUCIAL
 @app.route('/')
 def index():
-    return "Welcome to the Tutoring Platform API"
+    return {"message": "Tutoring Platform API is running!"}
 
 @app.route('/health')
 def health():
     return {"status": "healthy"}
 
-# Add more routes as needed for your API endpoints
 @app.route('/api/v1/courses')
 def courses():
-    # Your courses endpoint logic here
-    return {"message": "Courses endpoint"}
+    # Return sample data or implement your actual logic
+    return {"message": "Courses endpoint", "courses": []}
 
 # Create default admin user and settings
 def create_default_admin():
@@ -90,9 +89,8 @@ def create_default_admin():
             db.session.commit()
             logging.info("Default admin user and settings created")
 
-# Main execution block - THIS IS CRITICAL FOR RENDER
+# Main execution block - CRITICAL FOR RENDER
 if __name__ == '__main__':
-    # Create default admin when running locally
     create_default_admin()
     
     # Get port from environment variable or default to 10000
