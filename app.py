@@ -43,58 +43,32 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
-# Define routes - THIS IS CRUCIAL
-@app.route('/')
-def index():
-    return {"message": "Tutoring Platform API is running!"}
-
-@app.route('/health')
-def health():
-    return {"status": "healthy"}
-
-@app.route('/api/v1/courses')
-def courses():
-    # Return sample data or implement your actual logic
-    return {"message": "Courses endpoint", "courses": []}
-
-# Create default admin user and settings
-def create_default_admin():
-    with app.app_context():
-        # Import models to ensure tables are created
-        import models
-        db.create_all()
+with app.app_context():
+    # Import models to ensure tables are created
+    import models
+    db.create_all()
+    
+    # Create default admin user if it doesn't exist
+    admin_user = models.User.query.filter_by(email='admin@tutor.com').first()
+    if not admin_user:
+        from werkzeug.security import generate_password_hash
+        admin = models.User()
+        admin.username = 'admin'
+        admin.email = 'admin@tutor.com'
+        admin.password_hash = generate_password_hash('admin123')
+        admin.role = 'admin'
+        admin.tokens = 1000
+        admin.education_level = 'Campus'
+        admin.curriculum = 'CBC'
+        db.session.add(admin)
         
-        # Create default admin user if it doesn't exist
-        admin_user = models.User.query.filter_by(email='admin@tutor.com').first()
-        if not admin_user:
-            from werkzeug.security import generate_password_hash
-            admin = models.User()
-            admin.username = 'admin'
-            admin.email = 'admin@tutor.com'
-            admin.password_hash = generate_password_hash('admin123')
-            admin.role = 'admin'
-            admin.tokens = 1000
-            admin.education_level = 'Campus'
-            admin.curriculum = 'CBC'
-            db.session.add(admin)
-            
-            # Create default settings
-            settings = models.AdminSettings()
-            settings.free_tokens_per_user = 5
-            settings.theme = 'blue'
-            settings.background_type = 'image'
-            settings.background_url = ''
-            settings.video_muted = True
-            db.session.add(settings)
-            db.session.commit()
-            logging.info("Default admin user and settings created")
-
-# Main execution block - CRITICAL FOR RENDER
-if __name__ == '__main__':
-    create_default_admin()
-    
-    # Get port from environment variable or default to 10000
-    port = int(os.environ.get('PORT', 10000))
-    
-    # Run the app - BIND TO 0.0.0.0 for Render
-    app.run(host='0.0.0.0', port=port, debug=False)
+        # Create default settings
+        settings = models.AdminSettings()
+        settings.free_tokens_per_user = 5
+        settings.theme = 'blue'
+        settings.background_type = 'image'
+        settings.background_url = ''
+        settings.video_muted = True
+        db.session.add(settings)
+        db.session.commit()
+        logging.info("Default admin user and settings created")
