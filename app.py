@@ -29,7 +29,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 # ---------------------------
 # File size config
 # ---------------------------
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB limit
+app.config['MAX_CONTENT_LENGTH'] = 5000 * 1024 * 1024  # 50MB limit
 
 # ---------------------------
 # Database config
