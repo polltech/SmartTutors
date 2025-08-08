@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with AI Tutor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Chat Interface -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 glass-card h-100">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-robot me-2 text-primary"></i>AI Tutor Chat
+                        </h4>
+                        <div class="badge bg-primary fs-6">
+                            {{ user.tokens }} tokens left
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="subject" class="form-label">
+                                    <i class="fas fa-book me-1"></i>Subject (Optional)
+                                </label>
+                                <select class="form-select" id="subject" name="subject">
+                                    <option value="">Select subject...</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="English">English</option>
+                                    <option value="Science">Science</option>
+                                    <option value="Kiswahili">Kiswahili</option>
+                                    <option value="CRE">Christian Religious Education</option>
+                                    <option value="History">History</option>
+                                    <option value="Geography">Geography</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Business Studies">Business Studies</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Your Learning Profile</label>
+                                <div class="form-control-plaintext">
+                                    <small class="text-muted">
+                                        {{ user.education_level }} • {{ user.curriculum }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="request_type" class="form-label">
+                                <i class="fas fa-tasks me-1"></i>What would you like?
+                            </label>
+                            <select class="form-select mb-3" id="request_type" name="request_type">
+                                <option value="question">Ask a Question</option>
+                                <option value="exam">Generate Exam/Quiz</option>
+                                <option value="explanation">Get Detailed Explanation</option>
+                                <option value="image">Generate Image</option>
+                                <option value="combined">Explanation with Images</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question" class="form-label">
+                                <i class="fas fa-question-circle me-1"></i><span id="question-label">Your Question</span>
+                            </label>
+                            <textarea class="form-control" id="question" name="question" rows="4" 
+                                     placeholder="" required></textarea>
+                            <div class="invalid-feedback">
+                                Please enter your request.
+                            </div>
+                        </div>
+
+                        <!-- Exam Options (shown when exam type is selected) -->
+                        <div id="exam-options" class="mb-3" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="num_questions" class="form-label">Number of Questions</label>
+                                    <select class="form-select" id="num_questions" name="num_questions">
+                                        <option value="5">5 Questions</option>
+                                        <option value="10" selected>10 Questions</option>
+                                        <option value="15">15 Questions</option>
+                                        <option value="20">20 Questions</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="question_type" class="form-label">Question Type</label>
+                                    <select class="form-select" id="question_type" name="question_type">
+                                        <option value="mixed">Mixed (MCQ + Short Answer)</option>
+                                        <option value="mcq">Multiple Choice Only</option>
+                                        <option value="short">Short Answer Only</option>
+                                        <option value="essay">Essay Questions</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 align-items-center">
+                            <button type="submit" class="btn btn-primary glow-button" 
+                                    {% if user.tokens <= 0 %}disabled{% endif %}>
+                                <i class="fas fa-paper-plane me-2"></i>Ask AI Tutor
+                            </button>
+                            {% if user.tokens <= 0 %}
+                            <small class="text-danger">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                No tokens remaining. Contact admin for more tokens.
+                            </small>
+                            {% endif %}
+                        </div>
+                    </form>
+
+                    <!-- Sample Questions -->
+                    <div class="mt-4">
+                        <h6 class="text-muted">Sample Questions for {{ user.education_level }}:</h6>
+                        <div class="sample-questions">
+                            {% if user.education_level == 'Baby Class' %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Count from 1 to 10</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What are vowels?</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Name colors</button>
+                            {% elif user.education_level == 'Lower Primary' %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is 5 + 3?</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Parts of the body</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Days of the week</button>
+                            {% elif user.education_level == 'Upper Primary' %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 ÷ 6</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is photosynthesis?</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Counties of Kenya</button>
+                            {% elif user.education_level == 'High School' %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve quadratic equation: x² - 5x + 6 = 0</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain mitosis and meiosis</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Causes of World War I</button>
+                            {% else %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Calculus: Find derivative of x³ + 2x</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain quantum mechanics</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Machine learning basics</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Display Latest AI Response -->
+                    {% if latest_response %}
+                    <div class="mt-4">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-robot me-2"></i>Latest Response
+                                    <span class="badge bg-secondary ms-2">{{ latest_response.subject }}</span>
+                                </h6>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-success me-1" id="speak-latest">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" id="copy-latest">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div class="card border-0 glass-card">
+                            <div class="card-header bg-transparent border-0">
+                                <h6 class="mb-0 text-muted">
+                                    <i class="fas fa-question-circle me-1"></i>Your Question:
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">{{ latest_response.question }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 glass-card mt-3">
+                            <div class="card-header bg-transparent border-0">
+                                <h6 class="mb-0 text-primary">
+                                    <i class="fas fa-lightbulb me-1"></i>AI Tutor's Answer:
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="latest-answer" class="ai-response">
+                                    {{ latest_response.answer|safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Chats Sidebar -->
+        <div class="col-lg-4">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Chats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_chats %}
+                        <div class="chat-history">
+                            {% for chat in recent_chats %}
+                            <div class="chat-item mb-3 p-3 border rounded">
+                                <div class="chat-question mb-2">
+                                    <strong>Q:</strong> {{ chat.question[:60] }}{% if chat.question|length > 60 %}...{% endif %}
+                                </div>
+                                <div class="chat-meta">
+                                    <small class="text-muted">
+                                        {% if chat.subject %}
+                                            <i class="fas fa-book me-1"></i>{{ chat.subject }} •
+                                        {% endif %}
+                                        <i class="fas fa-clock me-1"></i>{{ chat.created_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-2 view-chat" 
+                                        data-question="{{ chat.question }}" 
+                                        data-answer="{{ chat.answer }}"
+                                        data-subject="{{ chat.subject or 'General' }}">
+                                    <i class="fas fa-eye me-1"></i>View Full
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-list me-1"></i>View All History
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>No chat history yet.<br>Ask your first question!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat View Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>AI Tutor Response
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Subject:</label>
+                    <span id="modal-subject" class="badge bg-secondary"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Your Question:</label>
+                    <div id="modal-question" class="p-3 bg-light rounded"></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label fw-bold">AI Tutor's Answer:</label>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-2" id="speak-answer">
+                                <i class="fas fa-volume-up me-1"></i>Read Aloud
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" id="copy-answer">
+                                <i class="fas fa-copy me-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div id="modal-answer" class="answer-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Dynamic interface based on request type
+document.getElementById('request_type').addEventListener('change', function() {
+    const requestType = this.value;
+    const examOptions = document.getElementById('exam-options');
+    const questionLabel = document.getElementById('question-label');
+    const questionTextarea = document.getElementById('question');
+    const submitButton = document.querySelector('button[type="submit"]');
+    
+    // Hide exam options by default
+    examOptions.style.display = 'none';
+    
+    // Update interface based on selection
+    switch(requestType) {
+        case 'question':
+            questionLabel.textContent = 'Your Question';
+            questionTextarea.placeholder = 'Ask me anything about your studies! For example:\n- Explain photosynthesis in simple terms\n- Help me solve: 2x + 5 = 15\n- What is the capital of Kenya?';
+            submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ask AI Tutor';
+            break;
+        case 'exam':
+            questionLabel.textContent = 'Exam Topic';
+            questionTextarea.placeholder = 'Enter the topic for your exam/quiz. For example:\n- Mathematics - Fractions\n- Science - States of Matter\n- History - Independence of Kenya\n- English - Grammar and Comprehension';
+            examOptions.style.display = 'block';
+            submitButton.innerHTML = '<i class="fas fa-file-alt me-2"></i>Generate Exam';
+            break;
+        case 'explanation':
+            questionLabel.textContent = 'Topic to Explain';
+            questionTextarea.placeholder = 'What would you like me to explain in detail? For example:\n- How do plants make food?\n- Steps to solve algebraic equations\n- The water cycle process\n- How to write a good essay';
+            submitButton.innerHTML = '<i class="fas fa-lightbulb me-2"></i>Get Explanation';
+            break;
+        case 'image':
+            questionLabel.textContent = 'Image Description';
+            questionTextarea.placeholder = 'Describe what image you need for learning. For example:\n- A diagram showing parts of a flower\n- Map of Kenya showing all counties\n- Solar system with all planets\n- Water cycle illustration';
+            submitButton.innerHTML = '<i class="fas fa-image me-2"></i>Generate Image';
+            break;
+        case 'combined':
+            questionLabel.textContent = 'Topic for Explanation with Images';
+            questionTextarea.placeholder = 'What topic should I explain with helpful images? For example:\n- Photosynthesis process with plant diagrams\n- Human digestive system with anatomical illustrations\n- Geometric shapes with visual examples\n- History of Kenya with maps and photos';
+            submitButton.innerHTML = '<i class="fas fa-magic me-2"></i>Create Explanation with Images';
+            break;
+    }
+});
+
+// Sample questions
+document.querySelectorAll('.sample-question').forEach(button => {
+    button.addEventListener('click', function() {
+        document.getElementById('question').value = this.textContent;
+    });
+});
+
+// View chat functionality
+document.querySelectorAll('.view-chat').forEach(button => {
+    button.addEventListener('click', function() {
+        const question = this.dataset.question;
+        const answer = this.dataset.answer;
+        const subject = this.dataset.subject;
+        
+        document.getElementById('modal-subject').textContent = subject;
+        document.getElementById('modal-question').textContent = question;
+        document.getElementById('modal-answer').innerHTML = formatAIResponse(answer);
+        
+        new bootstrap.Modal(document.getElementById('chatModal')).show();
+    });
+});
+
+// Copy answer functionality
+document.getElementById('copy-answer').addEventListener('click', function() {
+    const answer = document.getElementById('modal-answer').textContent;
+    navigator.clipboard.writeText(answer).then(() => {
+        this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
+        }, 2000);
+    });
+});
+
+// Text-to-speech functionality
+document.getElementById('speak-answer').addEventListener('click', function() {
+    const answer = document.getElementById('modal-answer').textContent;
+    if (answer) {
+        speakText(answer);
+        this.innerHTML = '<i class="fas fa-stop me-1"></i>Stop';
+        setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-volume-up me-1"></i>Read Aloud';
+        }, 3000);
+    }
+});
+
+// Format AI Response for better visibility and structure
+function formatAIResponse(text) {
+    if (!text) return '';
+    
+    let formatted = text;
+    
+    // Convert headers (## Header)
+    formatted = formatted.replace(/^## (.+)/gm, '<h3 class="text-primary mt-4 mb-3"><i class="fas fa-lightbulb me-2"></i>$1</h3>');
+    
+    // Convert bold text (**text**)
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert italic text (*text*)
+    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Detect and format math problems
+    if (formatted.match(/(\d+\s*[\+\-\*\/×÷]\s*\d+|\w+\s*=\s*\d+|solve|equation|formula)/i)) {
+        formatted = formatMathContent(formatted);
+    }
+    
+    // Convert numbered lists
+    formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
+        return `<div class="step-item">
+            <div class="step-number">${num}</div>
+            <div class="step-content">${content}</div>
+        </div>`;
+    });
+    
+    // Convert lettered lists
+    formatted = formatted.replace(/^([a-z])\.\s+(.+)/gmi, function(match, letter, content) {
+        return `<div class="step-item">
+            <div class="step-letter">${letter.toUpperCase()}</div>
+            <div class="step-content">${content}</div>
+        </div>`;
+    });
+    
+    // Convert bullet points
+    formatted = formatted.replace(/^-\s+(.+)/gm, '<li class="mb-2">$1</li>');
+    
+    // Wrap consecutive <li> elements in <ul>
+    formatted = formatted.replace(/((<li[^>]*>.*?<\/li>\s*)+)/gs, '<ul class="mt-2 mb-3">$1</ul>');
+    
+    // Convert line breaks
+    formatted = formatted.replace(/\n\n/g, '</p><p>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraph tags if not already structured
+    if (!formatted.match(/<[h123456]|<div|<ul|<ol/)) {
+        formatted = '<p>' + formatted + '</p>';
+    }
+    
+    return formatted;
+}
+
+// Format math content with special styling
+function formatMathContent(text) {
+    // Wrap the entire content in a math block
+    let mathFormatted = `<div class="math-block">
+        <div class="content-block-header">
+            <i class="fas fa-calculator me-2"></i>Mathematics Solution
+        </div>
+        ${text}
+    </div>`;
+    
+    // Detect step-by-step solutions
+    if (text.match(/step\s*\d+/i)) {
+        mathFormatted = mathFormatted.replace(/step\s*(\d+):\s*(.+)/gi, function(match, num, content) {
+            return `<div class="math-step">
+                <span class="math-step-number">${num}</span>
+                ${content}
+            </div>`;
+        });
+    }
+    
+    // Format mathematical expressions (basic)
+    mathFormatted = mathFormatted.replace(/(\d+\s*[\+\-\*\/×÷]\s*\d+\s*=\s*\d+)/g, '<div class="math-formula">$1</div>');
+    
+    return mathFormatted;
+}
+
+// Enhanced text formatting for better readability
+function enhanceTextReadability() {
+    // Add this to make content more visible
+    document.querySelectorAll('.answer-content').forEach(element => {
+        element.style.fontSize = '17px';
+        element.style.lineHeight = '1.8';
+        element.style.color = '#2c3e50';
+    });
+}
+
+// Call enhancement on load
+document.addEventListener('DOMContentLoaded', function() {
+    enhanceTextReadability();
+    
+    // Format the latest response if it exists
+    const latestAnswer = document.getElementById('latest-answer');
+    if (latestAnswer) {
+        latestAnswer.innerHTML = formatAIResponse(latestAnswer.textContent);
+    }
+});
+
+// Latest response functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const speakLatest = document.getElementById('speak-latest');
+    const copyLatest = document.getElementById('copy-latest');
+    const latestAnswer = document.getElementById('latest-answer');
+    
+    if (speakLatest && latestAnswer) {
+        speakLatest.addEventListener('click', function() {
+            const text = latestAnswer.textContent;
+            if (text && typeof speakText === 'function') {
+                speakText(text);
+                this.innerHTML = '<i class="fas fa-stop"></i>';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                }, 3000);
+            }
+        });
+    }
+    
+    if (copyLatest && latestAnswer) {
+        copyLatest.addEventListener('click', function() {
+            const text = latestAnswer.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

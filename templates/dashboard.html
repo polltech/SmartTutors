@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Smart Tutor{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Welcome Section -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 glass-card">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-6 fw-bold text-glow mb-2">
+                                Welcome back, {{ user.username }}!
+                            </h1>
+                            <p class="lead mb-0">
+                                Ready to continue your learning journey? You have 
+                                <span class="badge bg-primary fs-6">{{ user.tokens }} tokens</span> remaining.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="ai-avatar">
+                                <i class="fas fa-robot fa-4x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-graduate me-2"></i>Your Learning Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="profile-item">
+                                <label class="text-muted small">Education Level</label>
+                                <div class="fw-bold">{{ user.education_level }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="profile-item">
+                                <label class="text-muted small">Curriculum</label>
+                                <div class="fw-bold">{{ user.curriculum }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <div class="profile-item">
+                                <label class="text-muted small">Member Since</label>
+                                <div class="fw-bold">{{ user.created_at.strftime('%B %Y') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="profile-item">
+                                <label class="text-muted small">Role</label>
+                                <div class="fw-bold text-capitalize">{{ user.role }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <i class="fas fa-edit me-1"></i>Update Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-rocket me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary glow-button">
+                            <i class="fas fa-comments me-2"></i>Ask AI Tutor
+                        </a>
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-history me-2"></i>View Chat History
+                        </a>
+                        {% if user.role == 'admin' %}
+                        <a href="{{ url_for('admin') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-cog me-2"></i>Admin Panel
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user.tokens <= 2 %}
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Low tokens!</strong> You have {{ user.tokens }} tokens remaining.
+                        {% if user.role != 'admin' %}
+                        Contact admin for more tokens.
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Categories -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-books me-2"></i>Available Subjects
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% set subjects = [
+                            ('Mathematics', 'fas fa-calculator', 'primary'),
+                            ('English', 'fas fa-language', 'success'),
+                            ('Science', 'fas fa-flask', 'info'),
+                            ('Kiswahili', 'fas fa-comments', 'warning'),
+                            ('CRE', 'fas fa-cross', 'secondary'),
+                            ('History', 'fas fa-landmark', 'dark'),
+                            ('Geography', 'fas fa-globe', 'success'),
+                            ('Chemistry', 'fas fa-atom', 'danger'),
+                            ('Physics', 'fas fa-magnet', 'info'),
+                            ('Biology', 'fas fa-dna', 'success')
+                        ] %}
+                        
+                        {% for subject, icon, color in subjects %}
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="subject-card text-center p-3 border rounded">
+                                <div class="subject-icon mb-2">
+                                    <i class="{{ icon }} fa-2x text-{{ color }}"></i>
+                                </div>
+                                <div class="subject-name small fw-bold">{{ subject }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                            <i class="fas fa-graduation-cap me-2"></i>Start Learning Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Tips -->
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Learning Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="tip-card">
+                                <div class="tip-icon mb-2">
+                                    <i class="fas fa-question-circle fa-2x text-primary"></i>
+                                </div>
+                                <h6>Ask Specific Questions</h6>
+                                <p class="small text-muted">
+                                    Be specific about what you want to learn. Instead of "teach me math", 
+                                    try "explain how to solve quadratic equations".
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="tip-card">
+                                <div class="tip-icon mb-2">
+                                    <i class="fas fa-volume-up fa-2x text-success"></i>
+                                </div>
+                                <h6>Use Voice Reading</h6>
+                                <p class="small text-muted">
+                                    Click the speaker icon to hear explanations read aloud. 
+                                    This helps with pronunciation and comprehension.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="tip-card">
+                                <div class="tip-icon mb-2">
+                                    <i class="fas fa-history fa-2x text-info"></i>
+                                </div>
+                                <h6>Review Your History</h6>
+                                <p class="small text-muted">
+                                    Check your chat history regularly to review concepts 
+                                    and reinforce your learning.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize theme from settings
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/theme')
+        .then(response => response.json())
+        .then(data => {
+            document.body.setAttribute('data-theme', data.theme);
+            
+            // Set background if available
+            const backgroundContainer = document.getElementById('background-container');
+            if (data.background_url && backgroundContainer) {
+                if (data.background_type === 'video') {
+                    backgroundContainer.innerHTML = `
+                        <video autoplay loop ${data.video_muted ? 'muted' : ''} class="background-video">
+                            <source src="${data.background_url}" type="video/mp4">
+                        </video>
+                        <div id="background-overlay"></div>
+                    `;
+                } else {
+                    backgroundContainer.style.backgroundImage = `url(${data.background_url})`;
+                    backgroundContainer.style.backgroundSize = 'cover';
+                    backgroundContainer.style.backgroundPosition = 'center';
+                }
+            }
+        })
+        .catch(error => console.log('Theme loading failed:', error));
+});
+</script>
+{% endblock %}

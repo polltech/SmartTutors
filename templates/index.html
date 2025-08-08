@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="landing-page">
+    <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
+        <div class="text-center">
+            <!-- Initial Dark Screen with Glowing Button -->
+            <div id="initial-screen" class="initial-screen">
+                <button id="open-book-btn" class="glow-button">
+                    <i class="fas fa-book-open me-2"></i>Open Your Learning Journey
+                </button>
+            </div>
+
+            <!-- Main Landing Content (hidden initially) -->
+            <div id="main-content" class="main-content" style="display: none;">
+                <div class="book-page book-page-left">
+                    <div class="hero-section">
+                        <div class="ai-avatar mb-4">
+                            <i class="fas fa-robot fa-5x text-primary"></i>
+                        </div>
+                        <h1 class="display-4 fw-bold mb-4 text-glow">
+                            AI Smart Tutor
+                        </h1>
+                        <p class="lead mb-4">
+                            Learn Anything, Anywhere with AI-Powered Education
+                        </p>
+                        <div class="features-list mb-4">
+                            <div class="feature-item">
+                                <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                Multi-Level Learning (Baby Class to University)
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-book text-primary me-2"></i>
+                                CBC & 8-4-4 Curriculum Support
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-brain text-primary me-2"></i>
+                                AI-Powered Explanations
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-volume-up text-primary me-2"></i>
+                                Voice Reading Support
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-page book-page-right">
+                    <div class="auth-section">
+                        <h3 class="mb-4">Get Started Today</h3>
+                        <div class="d-grid gap-3">
+                            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg glow-button">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a>
+                        </div>
+                        
+                        <div class="mt-4 text-muted">
+                            <small>
+                                <i class="fas fa-gift me-1"></i>
+                                Get 5 free questions when you sign up!
+                            </small>
+                        </div>
+                        
+                        <div class="subjects-preview mt-4">
+                            <h6>Subjects We Cover:</h6>
+                            <div class="subject-badges">
+                                <span class="badge bg-secondary me-1">Mathematics</span>
+                                <span class="badge bg-secondary me-1">English</span>
+                                <span class="badge bg-secondary me-1">Science</span>
+                                <span class="badge bg-secondary me-1">Kiswahili</span>
+                                <span class="badge bg-secondary me-1">CRE</span>
+                                <span class="badge bg-secondary me-1">History</span>
+                                <span class="badge bg-secondary me-1">Geography</span>
+                                <span class="badge bg-secondary me-1">Chemistry</span>
+                                <span class="badge bg-secondary me-1">Physics</span>
+                                <span class="badge bg-secondary me-1">Biology</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openBookBtn = document.getElementById('open-book-btn');
+    const initialScreen = document.getElementById('initial-screen');
+    const mainContent = document.getElementById('main-content');
+    
+    openBookBtn.addEventListener('click', function() {
+        // Add animation classes
+        initialScreen.style.opacity = '0';
+        initialScreen.style.transform = 'scale(0.8)';
+        
+        setTimeout(() => {
+            initialScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            
+            // Trigger book opening animation
+            setTimeout(() => {
+                mainContent.classList.add('book-open');
+            }, 100);
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

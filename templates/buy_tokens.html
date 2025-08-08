@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Buy Tokens - AI Smart Tutor{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card glass-card">
+                <div class="card-header text-center">
+                    <h3><i class="fas fa-coins me-2"></i>Buy Tokens</h3>
+                    <p class="mb-0 text-muted">Get more AI tutoring sessions</p>
+                </div>
+                <div class="card-body">
+                    <!-- Payment Instructions -->
+                    <div class="alert alert-info" role="alert">
+                        <h5><i class="fas fa-info-circle me-2"></i>Payment Instructions</h5>
+                        <p class="mb-2">Send <strong>KES 50</strong> to <strong>0115651722</strong> via M-PESA.</p>
+                        <p class="mb-0">After payment, enter the M-PESA transaction code below to receive your tokens.</p>
+                        <p class="mb-0 mt-2"><small class="text-muted">Your request will be reviewed and approved shortly.</small></p>
+                    </div>
+
+                    <!-- M-PESA Logo/Info -->
+                    <div class="text-center mb-4">
+                        <div class="p-3 bg-success bg-opacity-10 rounded">
+                            <i class="fas fa-mobile-alt fa-3x text-success mb-2"></i>
+                            <h5 class="text-success mb-0">M-PESA Payment</h5>
+                            <p class="text-muted mb-0">Send to: <strong>0115651722</strong></p>
+                            <p class="text-success mb-0">Amount: <strong>KES 50</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Code Form -->
+                    <form method="POST" action="{{ url_for('submit_payment_code') }}">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">
+                                <i class="fas fa-receipt me-1"></i>M-PESA Transaction Code
+                            </label>
+                            <input type="text" class="form-control" id="code" name="code" 
+                                   placeholder="Enter your M-PESA transaction code" required
+                                   pattern="[A-Z0-9]{10}" maxlength="10"
+                                   style="text-transform: uppercase;">
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Example: QFX2H4RYBN (10 characters, letters and numbers)
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Payment Code
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Help Section -->
+                    <div class="mt-4">
+                        <h6><i class="fas fa-question-circle me-2"></i>Need Help?</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Complete the M-PESA payment first</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Copy the exact transaction code from your SMS</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Submit the code using the form above</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Admin will approve and add tokens to your account</li>
+                        </ul>
+                    </div>
+
+                    <!-- Back Button -->
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+}
+</style>
+{% endblock %}

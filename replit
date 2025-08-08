@@ -1,0 +1,79 @@
+# replit.md
+
+## Overview
+
+AI Smart Tutor is a Flask-based educational platform that provides AI-powered tutoring for students across different education levels. The application integrates with Google's Gemini AI to deliver personalized learning experiences based on user profiles, including education level (Baby Class to University) and curriculum (CBC or 8-4-4). The platform features a token-based system for managing AI interactions, user authentication, chat history, and an administrative interface for system management.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Backend Architecture
+- **Framework**: Flask web application with SQLAlchemy ORM for database operations
+- **Authentication**: Flask-Login for session management with role-based access (student/admin)
+- **Database**: SQLite by default, with support for PostgreSQL via environment configuration
+- **AI Integration**: Google Gemini API for generating educational responses tailored to user profiles
+
+### Frontend Architecture
+- **Template Engine**: Jinja2 templates with Bootstrap 5 for responsive design
+- **Styling**: Custom CSS with theme support (blue, red, white, gray) and glass morphism effects
+- **Interactive Features**: JavaScript-powered theme management, text-to-speech functionality, and animated landing page
+- **User Experience**: Book-opening animation for landing page, voice support for reading AI responses
+
+### Data Model Design
+- **User Management**: Users with education levels, curriculum preferences, token balances, and role assignments
+- **Chat System**: Conversation history with subject categorization and token usage tracking
+- **Payment Integration**: Token purchase tracking with multiple payment methods (MPESA, Manual)
+- **Admin Configuration**: Centralized settings for API keys, themes, backgrounds, and system parameters
+
+### Token-Based Resource Management
+- **Free Tokens**: Configurable free tokens per user registration (default 5 tokens)
+- **Usage Tracking**: Token consumption per AI interaction with full audit trail
+- **Enhanced Admin Controls**: Individual and bulk token management with intuitive interface
+- **Quick Token Operations**: Pre-set amounts (5, 10, 25, 50, 100) for fast token allocation
+- **Payment Processing**: Integration ready for MPESA and comprehensive manual token additions
+- **Transaction Logging**: Complete audit trail for all token additions and usage
+
+### Security and Configuration
+- **Environment Variables**: Secure storage of API keys and database URLs
+- **Password Hashing**: Werkzeug security for user password management
+- **Proxy Support**: ProxyFix middleware for deployment behind reverse proxies
+- **Session Management**: Secure session handling with configurable secret keys
+
+## External Dependencies
+
+### AI Services
+- **Google Gemini API**: Primary AI service for generating educational content and responses
+- **API Key Management**: Environment variable or admin panel configuration
+
+### Frontend Libraries
+- **Bootstrap 5**: UI framework for responsive design and components
+- **Font Awesome**: Icon library for user interface elements
+- **Web Speech API**: Browser-based text-to-speech functionality
+
+### Python Packages
+- **Flask**: Web framework and core application structure
+- **SQLAlchemy**: Database ORM and model management
+- **Flask-Login**: User session and authentication management
+- **Werkzeug**: Security utilities and password hashing
+
+### Database Systems
+- **SQLite**: Default development database (file-based)
+- **PostgreSQL**: Production database support via DATABASE_URL environment variable
+
+### Payment Integration
+- **M-PESA Manual Processing**: Complete integration for KES 50 payments via M-PESA number 0115651722
+  - User-facing payment flow with transaction code submission
+  - Admin approval workflow with automatic token allocation (10 tokens per payment)
+  - Pending payment tracking and status management
+- **PayPal**: Payment processing system (credentials configurable - ready for implementation)
+
+### Media and Asset Management
+- **Background Media**: Unlimited support for image and video backgrounds (including base64 data URLs)
+- **Enhanced URL Handling**: TEXT field for background URLs supporting any length content
+- **Upload Size Limits**: 50MB maximum for file uploads with proper error handling
+- **Static Assets**: CSS, JavaScript, and media file serving through Flask
+- **Theme System**: Dynamic theme switching with customizable color schemes
+- **Error Prevention**: Robust form validation and database rollback mechanisms

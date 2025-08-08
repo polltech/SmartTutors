@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Chat History - AI Smart Tutor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Your Learning History
+                        </h4>
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Ask New Question
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if chats.items %}
+                        <div class="row">
+                            {% for chat in chats.items %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 border chat-card">
+                                    <div class="card-header bg-light">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                {% if chat.subject %}
+                                                    <span class="badge bg-primary">{{ chat.subject }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">General</span>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ chat.created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="card-title">Question:</h6>
+                                        <p class="card-text text-muted">
+                                            {{ chat.question[:100] }}{% if chat.question|length > 100 %}...{% endif %}
+                                        </p>
+                                        
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-primary view-full-chat" 
+                                                    data-question="{{ chat.question }}" 
+                                                    data-answer="{{ chat.answer }}"
+                                                    data-subject="{{ chat.subject or 'General' }}"
+                                                    data-date="{{ chat.created_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                                                <i class="fas fa-eye me-1"></i>View Full
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary speak-question" 
+                                                    data-text="{{ chat.answer }}">
+                                                <i class="fas fa-volume-up me-1"></i>Listen
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <small class="text-muted">
+                                            <i class="fas fa-coins me-1"></i>{{ chat.tokens_used }} token used
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if chats.pages > 1 %}
+                        <nav aria-label="Chat history pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if chats.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('history', page=chats.prev_num) }}">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in chats.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != chats.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('history', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if chats.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('history', page=chats.next_num) }}">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-comments fa-5x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No chat history yet</h5>
+                            <p class="text-muted">Start your learning journey by asking your first question!</p>
+                            <a href="{{ url_for('chat') }}" class="btn btn-primary glow-button">
+                                <i class="fas fa-graduation-cap me-2"></i>Ask AI Tutor Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Full Chat Modal -->
+<div class="modal fade" id="fullChatModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>Chat Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Question Side -->
+                    <div class="col-md-6">
+                        <div class="chat-bubble student-bubble p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong><i class="fas fa-user me-1"></i>Your Question</strong>
+                                <span id="modal-subject-badge" class="badge bg-primary"></span>
+                            </div>
+                            <div id="modal-full-question"></div>
+                            <small class="text-muted mt-2 d-block">
+                                <i class="fas fa-clock me-1"></i><span id="modal-date"></span>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Answer Side -->
+                    <div class="col-md-6">
+                        <div class="chat-bubble tutor-bubble p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong><i class="fas fa-robot me-1"></i>AI Tutor's Answer</strong>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" id="modal-speak-btn">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" id="modal-copy-btn">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="modal-full-answer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// View full chat functionality
+document.querySelectorAll('.view-full-chat').forEach(button => {
+    button.addEventListener('click', function() {
+        const question = this.dataset.question;
+        const answer = this.dataset.answer;
+        const subject = this.dataset.subject;
+        const date = this.dataset.date;
+        
+        document.getElementById('modal-subject-badge').textContent = subject;
+        document.getElementById('modal-full-question').textContent = question;
+        document.getElementById('modal-full-answer').innerHTML = answer.replace(/\n/g, '<br>');
+        document.getElementById('modal-date').textContent = date;
+        
+        new bootstrap.Modal(document.getElementById('fullChatModal')).show();
+    });
+});
+
+// Copy functionality
+document.getElementById('modal-copy-btn').addEventListener('click', function() {
+    const answer = document.getElementById('modal-full-answer').textContent;
+    navigator.clipboard.writeText(answer).then(() => {
+        this.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-copy"></i>';
+        }, 2000);
+    });
+});
+
+// Text-to-speech functionality
+document.getElementById('modal-speak-btn').addEventListener('click', function() {
+    const answer = document.getElementById('modal-full-answer').textContent;
+    if (answer) {
+        speakText(answer);
+    }
+});
+
+// Quick listen buttons in cards
+document.querySelectorAll('.speak-question').forEach(button => {
+    button.addEventListener('click', function() {
+        const text = this.dataset.text;
+        speakText(text);
+        
+        // Visual feedback
+        const originalHTML = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-stop me-1"></i>Playing...';
+        setTimeout(() => {
+            this.innerHTML = originalHTML;
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

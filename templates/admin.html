@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - AI Smart Tutor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Admin Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-body">
+                    <h2 class="text-glow mb-0">
+                        <i class="fas fa-cog me-2"></i>Admin Control Panel
+                    </h2>
+                    <p class="text-muted mb-0">Manage users, settings, and monitor system activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 glass-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                    <h4>{{ users|length }}</h4>
+                    <p class="mb-0">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 glass-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-comments fa-2x text-success mb-2"></i>
+                    <h4>{{ recent_chats|length }}</h4>
+                    <p class="mb-0">Recent Chats</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 glass-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-coins fa-2x text-warning mb-2"></i>
+                    <h4>{{ settings.free_tokens_per_user }}</h4>
+                    <p class="mb-0">Free Tokens</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 glass-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-credit-card fa-2x text-warning mb-2"></i>
+                    <h4>{{ pending_payments|length }}</h4>
+                    <p class="mb-0">Pending Payments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Users Management -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>User Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Level</th>
+                                    <th>Tokens</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ user.username }}</strong>
+                                            <br><small class="text-muted">{{ user.email }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ user.education_level }}<br>{{ user.curriculum }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ user.tokens }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'warning' if user.role == 'admin' else 'secondary' }}">
+                                            {{ user.role|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-success add-tokens-btn" 
+                                                    data-user-id="{{ user.id }}" 
+                                                    data-username="{{ user.username }}"
+                                                    title="Add Tokens to {{ user.username }}">
+                                                <i class="fas fa-coins me-1"></i>Add Tokens
+                                            </button>
+                                            {% if user.id != current_user.id %}
+                                            <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+                                               class="btn btn-outline-danger"
+                                               onclick="return confirm('Delete {{ user.username }}?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>System Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_settings') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Free Tokens per User</label>
+                            <input type="number" class="form-control" name="free_tokens_per_user" 
+                                   value="{{ settings.free_tokens_per_user }}" min="0" max="100">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Gemini API Key</label>
+                            <input type="password" class="form-control" name="gemini_api_key" 
+                                   value="{{ settings.gemini_api_key or '' }}" 
+                                   placeholder="Enter Gemini API Key">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Theme</label>
+                            <select class="form-select" name="theme">
+                                <option value="blue" {{ 'selected' if settings.theme == 'blue' }}>Blue</option>
+                                <option value="red" {{ 'selected' if settings.theme == 'red' }}>Red</option>
+                                <option value="white" {{ 'selected' if settings.theme == 'white' }}>White</option>
+                                <option value="gray" {{ 'selected' if settings.theme == 'gray' }}>Gray</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Background Type</label>
+                            <select class="form-select" name="background_type">
+                                <option value="image" {{ 'selected' if settings.background_type == 'image' }}>Image</option>
+                                <option value="video" {{ 'selected' if settings.background_type == 'video' }}>Video</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Background URL</label>
+                            <textarea class="form-control" name="background_url" rows="3" 
+                                      placeholder="https://example.com/background.jpg&#10;Note: Supports URLs of any length including base64 data URLs">{{ settings.background_url or '' }}</textarea>
+                            <small class="form-text text-muted">Supports regular URLs and base64 data URLs (unlimited length)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="video_muted" 
+                                       id="video_muted" {{ 'checked' if settings.video_muted }}>
+                                <label class="form-check-label" for="video_muted">
+                                    Mute Background Video
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-save me-2"></i>Update Settings
+                        </button>
+                        
+                        <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#bulkTokensModal">
+                            <i class="fas fa-layer-group me-2"></i>Bulk Add Tokens to All Users
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending M-PESA Payments -->
+    {% if pending_payments %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Pending M-PESA Payments
+                        <span class="badge bg-warning ms-2">{{ pending_payments|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Transaction Code</th>
+                                    <th>Date Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in pending_payments %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ payment.user.username }}</strong>
+                                            <br><small class="text-muted">{{ payment.user.email }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code>{{ payment.code }}</code>
+                                    </td>
+                                    <td>
+                                        <small>{{ payment.date_submitted.strftime('%Y-%m-%d %H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('approve_payment', payment_id=payment.id) }}" 
+                                               class="btn btn-success"
+                                               onclick="return confirm('Approve payment for {{ payment.user.username }}? This will add 10 tokens to their account.')">
+                                                <i class="fas fa-check me-1"></i>Approve
+                                            </a>
+                                            <a href="{{ url_for('reject_payment', payment_id=payment.id) }}" 
+                                               class="btn btn-danger"
+                                               onclick="return confirm('Reject payment for {{ payment.user.username }}?')">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Payment Info:</strong> Each approved KES 50 payment adds 10 tokens to the user's account.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_chats %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Subject</th>
+                                    <th>Question</th>
+                                    <th>Time</th>
+                                    <th>Tokens</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chat in recent_chats[:10] %}
+                                <tr>
+                                    <td>{{ chat.user.username }}</td>
+                                    <td>
+                                        {% if chat.subject %}
+                                            <span class="badge bg-secondary">{{ chat.subject }}</span>
+                                        {% else %}
+                                            <span class="text-muted">General</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ chat.question }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ chat.created_at.strftime('%m/%d %H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ chat.tokens_used }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>No recent activity to display</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Add Tokens Modal -->
+<div class="modal fade" id="addTokensModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-primary">
+                    <i class="fas fa-coins me-2"></i>Add Tokens to User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_tokens') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="user_id" id="token-user-id">
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Token Management:</strong> Add tokens to help users continue learning with the AI tutor.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Selected User</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="token-username" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="tokens" class="form-label fw-bold">Number of Tokens to Add</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                            <input type="number" class="form-control" name="tokens" id="token-amount" 
+                                   min="1" max="1000" value="10" required>
+                        </div>
+                        <small class="form-text text-muted">Enter between 1 and 1000 tokens</small>
+                    </div>
+                    
+                    <!-- Quick Token Options -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quick Add Options:</label>
+                        <div class="btn-group d-flex" role="group">
+                            <button type="button" class="btn btn-outline-primary quick-token" data-tokens="5">+5</button>
+                            <button type="button" class="btn btn-outline-primary quick-token" data-tokens="10">+10</button>
+                            <button type="button" class="btn btn-outline-primary quick-token" data-tokens="25">+25</button>
+                            <button type="button" class="btn btn-outline-primary quick-token" data-tokens="50">+50</button>
+                            <button type="button" class="btn btn-outline-primary quick-token" data-tokens="100">+100</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Add Tokens
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Add Tokens Modal -->
+<div class="modal fade" id="bulkTokensModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-warning">
+                    <i class="fas fa-layer-group me-2"></i>Bulk Add Tokens
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('bulk_add_tokens') }}">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Bulk Operation:</strong> This will add tokens to ALL users at once.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="bulk-tokens" class="form-label fw-bold">Tokens per User</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                            <input type="number" class="form-control" name="tokens" id="bulk-tokens" 
+                                   min="1" max="100" value="5" required>
+                        </div>
+                        <small class="form-text text-muted">Each user will receive this many tokens</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Affected Users:</label>
+                        <div class="badge bg-info fs-6">{{ users|length }} users will receive tokens</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-warning" 
+                            onclick="return confirm('Add tokens to ALL {{ users|length }} users?')">
+                        <i class="fas fa-layer-group me-1"></i>Bulk Add Tokens
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Add tokens functionality
+document.querySelectorAll('.add-tokens-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const userId = this.dataset.userId;
+        const username = this.dataset.username;
+        
+        document.getElementById('token-user-id').value = userId;
+        document.getElementById('token-username').value = username;
+        document.getElementById('token-amount').value = 10; // Reset to default
+        
+        new bootstrap.Modal(document.getElementById('addTokensModal')).show();
+    });
+});
+
+// Quick token selection buttons
+document.querySelectorAll('.quick-token').forEach(button => {
+    button.addEventListener('click', function() {
+        const tokenAmount = this.dataset.tokens;
+        document.getElementById('token-amount').value = tokenAmount;
+        
+        // Highlight selected button
+        document.querySelectorAll('.quick-token').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Auto-refresh admin panel every 30 seconds
+setInterval(() => {
+    // Only refresh if user is still on the page
+    if (document.visibilityState === 'visible') {
+        location.reload();
+    }
+}, 30000);
+</script>
+{% endblock %}
