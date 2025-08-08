@@ -95,11 +95,7 @@ with app.app_context():
 import routes  # <- This is crucial to make your views work
 
 # ---------------------------
-# Optional root JSON endpoint
-# ---------------------------
-@app.route("/")
-def status():
-    return {"message": "Tutoring Platform API is running!"}
+
 
 # ---------------------------
 # Render / local run support
