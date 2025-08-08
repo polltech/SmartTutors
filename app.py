@@ -81,7 +81,7 @@ with app.app_context():
         settings = models.AdminSettings()
         settings.free_tokens_per_user = 5
         settings.theme = 'blue'
-        settings.background_type = 'image,video'
+        settings.background_type = 'image'
         settings.background_url = ''
         settings.video_muted = True
         db.session.add(settings)
