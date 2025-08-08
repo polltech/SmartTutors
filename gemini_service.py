@@ -482,7 +482,7 @@ def generate_image(description, education_level, subject=None):
         
         client = get_gemini_client()
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=system_prompt
         )
         
