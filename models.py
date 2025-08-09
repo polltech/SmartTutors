@@ -67,7 +67,27 @@ class PendingPayment(db.Model):
     user = db.relationship('User', backref=db.backref('pending_payments', lazy=True))
 
 # -------- New uptime ping log model --------
-
 class PingLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    @classmethod
+    def get_uptime_duration(cls):
+        """Calculate uptime duration from ping logs"""
+        first_ping = cls.query.order_by(cls.timestamp.asc()).first()
+        last_ping = cls.query.order_by(cls.timestamp.desc()).first()
+        
+        if first_ping and last_ping:
+            return last_ping.timestamp - first_ping.timestamp
+        return None
+    
+    @classmethod
+    def get_last_ping(cls):
+        """Get the timestamp of the last ping"""
+        last_ping = cls.query.order_by(cls.timestamp.desc()).first()
+        return last_ping.timestamp if last_ping else None
+
+    @classmethod
+    def get_ping_count(cls):
+        """Get total number of pings"""
+        return cls.query.count()
