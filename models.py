@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), default='student')  # student, admin
     tokens = db.Column(db.Integer, default=5)
     education_level = db.Column(db.String(50), nullable=True)  # Baby Class, Lower Primary, etc.
-    curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4
+    curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4, TVET
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -41,6 +41,10 @@ class AdminSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     free_tokens_per_user = db.Column(db.Integer, default=5)
     gemini_api_key = db.Column(db.String(200), nullable=True)
+    hf_token = db.Column(db.String(200), nullable=True)  # New field for Hugging Face
+    pixabay_key = db.Column(db.String(200), nullable=True)  # New field for Pixabay
+    unsplash_key = db.Column(db.String(200), nullable=True)  # New field for Unsplash
+    pexels_key = db.Column(db.String(200), nullable=True)  # New field for Pexels
     theme = db.Column(db.String(20), default='blue')  # blue, red, white, gray
     background_type = db.Column(db.String(10), default='image')  # image, video
     background_url = db.Column(db.Text, nullable=True)
