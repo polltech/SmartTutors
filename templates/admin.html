@@ -246,6 +246,90 @@
         </div>
     </div>
 
+    <!-- API Keys Management Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 glass-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2"></i>API Keys Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="api-keys-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="hf_token" class="fw-bold">Hugging Face Token</label>
+                                    <input type="password" class="form-control" id="hf_token" 
+                                           value="{{ settings.hf_token if settings.hf_token else '' }}" 
+                                           placeholder="Enter Hugging Face API token">
+                                    <small class="form-text text-muted">Used for local AI image generation</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="pixabay_key" class="fw-bold">Pixabay API Key</label>
+                                    <input type="password" class="form-control" id="pixabay_key" 
+                                           value="{{ settings.pixabay_key if settings.pixabay_key else '' }}" 
+                                           placeholder="Enter Pixabay API key">
+                                    <small class="form-text text-muted">Used for vector educational images</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="unsplash_key" class="fw-bold">Unsplash API Key</label>
+                                    <input type="password" class="form-control" id="unsplash_key" 
+                                           value="{{ settings.unsplash_key if settings.unsplash_key else '' }}" 
+                                           placeholder="Enter Unsplash API key">
+                                    <small class="form-text text-muted">Used for high-quality educational photos</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="pexels_key" class="fw-bold">Pexels API Key</label>
+                                    <input type="password" class="form-control" id="pexels_key" 
+                                           value="{{ settings.pexels_key if settings.pexels_key else '' }}" 
+                                           placeholder="Enter Pexels API key">
+                                    <small class="form-text text-muted">Used for free stock educational images</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label for="gemini_api_key_admin" class="fw-bold">Gemini API Key</label>
+                                    <input type="password" class="form-control" id="gemini_api_key_admin" 
+                                           value="{{ settings.gemini_api_key if settings.gemini_api_key else '' }}" 
+                                           placeholder="Enter Gemini API key">
+                                    <small class="form-text text-muted">Used for all AI responses and content generation</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-success" onclick="saveApiKeys()">
+                                    <i class="fas fa-save me-2"></i>Save API Keys
+                                </button>
+                                <button type="button" class="btn btn-info" onclick="testApiKeys()">
+                                    <i class="fas fa-check-circle me-2"></i>Test API Keys
+                                </button>
+                                <small class="form-text text-muted ms-2">Keys will be updated for all services</small>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="api-status" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Pending M-PESA Payments -->
     {% if pending_payments %}
     <div class="row mb-4">
@@ -543,6 +627,70 @@ function setupAutoRefresh() {
     
     console.log('Auto-refresh started every ' + (refreshInterval/1000) + ' seconds');
     return autoRefresh;
+}
+
+// Save API Keys to Admin Panel
+function saveApiKeys() {
+    const hfToken = document.getElementById('hf_token').value;
+    const pixabayKey = document.getElementById('pixabay_key').value;
+    const unsplashKey = document.getElementById('unsplash_key').value;
+    const pexelsKey = document.getElementById('pexels_key').value;
+    const geminiKey = document.getElementById('gemini_api_key_admin').value;
+    
+    // Show loading
+    const statusDiv = document.getElementById('api-status');
+    statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Saving API keys...</div>';
+    
+    // Send to backend
+    fetch('/api/admin/update-api-keys', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            hf_token: hfToken,
+            pixabay_key: pixabayKey,
+            unsplash_key: unsplashKey,
+            pexels_key: pexelsKey,
+            gemini_key: geminiKey
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>API keys saved successfully!</div>';
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        } else {
+            statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error saving API keys: ' + data.error + '</div>';
+        }
+    })
+    .catch(error => {
+        statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error: ' + error.message + '</div>';
+    });
+}
+
+// Test API Keys
+function testApiKeys() {
+    const statusDiv = document.getElementById('api-status');
+    statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Testing API keys...</div>';
+    
+    fetch('/api/admin/test-api-keys')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>All API keys are valid!</div>';
+        } else {
+            statusDiv.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Some API keys may not be valid: ' + data.message + '</div>';
+        }
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 5000);
+    })
+    .catch(error => {
+        statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error testing API keys: ' + error.message + '</div>';
+    });
 }
 
 // Start auto-refresh when page loads
