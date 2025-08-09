@@ -2,9 +2,26 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
-from models import User, Chat, Payment, AdminSettings, PendingPayment
+from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
 from gemini_service import get_ai_response, analyze_uploaded_document, generate_exam, generate_explanation, generate_image, generate_combined_response
 import logging
+from datetime import datetime
+
+# Secret key for /ping endpoint
+PING_SECRET = "PaulKeepAlive2025"
+
+@app.route('/ping')
+def ping():
+    key = request.args.get("key")
+    if key != PING_SECRET:
+        return "Unauthorized", 403
+    
+    # Save ping to DB
+    ping_log = PingLog(timestamp=datetime.utcnow())
+    db.session.add(ping_log)
+    db.session.commit()
+    
+    return "pong", 200
 
 @app.route('/')
 def index():
@@ -196,8 +213,12 @@ def admin():
     settings = AdminSettings.get_settings()
     recent_chats = Chat.query.order_by(Chat.created_at.desc()).limit(20).all()
     pending_payments = PendingPayment.query.filter_by(status='pending').order_by(PendingPayment.date_submitted.desc()).all()
-    
-    return render_template('admin.html', users=users, settings=settings, recent_chats=recent_chats, pending_payments=pending_payments)
+
+    # Get last ping time from DB
+    last_ping_record = PingLog.query.order_by(PingLog.timestamp.desc()).first()
+    last_ping_time = last_ping_record.timestamp.strftime("%Y-%m-%d %H:%M:%S") if last_ping_record else None
+
+    return render_template('admin.html', users=users, settings=settings, recent_chats=recent_chats, pending_payments=pending_payments, last_ping=last_ping_time)
 
 @app.route('/admin/add_tokens', methods=['POST'])
 @login_required
