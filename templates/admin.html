@@ -92,6 +92,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Auto-refresh Status Card -->
+        <div class="col-md-3 mt-3">
+            <div class="card border-0 glass-card text-center">
+                <div class="card-body">
+                    <i class="fas fa-sync fa-2x text-warning mb-2"></i>
+                    <h5>
+                        <span id="refresh-status">Active</span>
+                    </h5>
+                    <p class="mb-0">Auto-Refresh Status</p>
+                    <small class="text-muted">Every 3 minutes</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">
@@ -473,7 +487,71 @@
     </div>
 </div>
 
-<!-- Scripts -->
+<!-- Auto-refresh Script -->
+<script>
+// Auto-refresh to keep app awake with embedded secret key
+function setupAutoRefresh() {
+    const refreshInterval = 180000; // 3 minutes (180,000 milliseconds)
+    const secretKey = "PaulKeepAlive2025"; // Your embedded secret key
+    
+    console.log('Auto-refresh initialized with secret key');
+    
+    const autoRefresh = setInterval(() => {
+        // Update refresh status
+        const statusElement = document.getElementById('refresh-status');
+        if (statusElement) {
+            statusElement.textContent = 'Refreshing...';
+            setTimeout(() => {
+                if (statusElement) {
+                    statusElement.textContent = 'Active';
+                }
+            }, 1000);
+        }
+        
+        // Make ping request to keep app alive
+        fetch('/ping', {
+            method: 'GET',
+            headers: {
+                'X-Ping-Key': secretKey,
+                'Content-Type': 'application/json',
+            }
+        }).catch(error => {
+            console.log('Auto-refresh ping failed:', error);
+            // Update status to error if ping fails
+            const statusElement = document.getElementById('refresh-status');
+            if (statusElement) {
+                statusElement.textContent = 'Error';
+            }
+        });
+        
+        console.log('Auto-refresh ping sent at ' + new Date().toLocaleTimeString());
+    }, refreshInterval);
+    
+    // Also ping on user activity
+    const userEvents = ['mousemove', 'keypress', 'click', 'scroll'];
+    userEvents.forEach(event => {
+        document.addEventListener(event, function() {
+            // Send immediate ping on user activity
+            fetch('/ping', {
+                method: 'GET',
+                headers: {
+                    'X-Ping-Key': secretKey
+                }
+            });
+        });
+    });
+    
+    console.log('Auto-refresh started every ' + (refreshInterval/1000) + ' seconds');
+    return autoRefresh;
+}
+
+// Start auto-refresh when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupAutoRefresh();
+});
+</script>
+
+<!-- Existing Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Show add tokens modal with user info
