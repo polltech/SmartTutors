@@ -68,3 +68,9 @@ urllib3==2.5.0
 URLObject==3.0.0
 websockets==15.0.1
 Werkzeug==3.1.3
+
+# Additional packages for API key management and enhanced features
+diffusers==0.29.2
+transformers==4.45.2
+accelerate==0.33.0
+torch==2.5.1
