@@ -3,7 +3,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
-from gemini_service import get_ai_response, analyze_uploaded_document, generate_exam, generate_explanation, generate_image, generate_combined_response
+from gemini_service import get_ai_response, analyze_uploaded_document, generate_exam, generate_explanation, generate_image, generate_combined_response, update_api_keys_from_admin
 import logging
 from datetime import datetime
 
@@ -357,6 +357,95 @@ def get_theme():
         'background_url': settings.background_url,
         'video_muted': settings.video_muted
     })
+
+# API endpoints for admin key management
+@app.route('/api/admin/update-api-keys', methods=['POST'])
+def api_update_api_keys():
+    """
+    API endpoint to update API keys from admin panel
+    """
+    try:
+        data = request.get_json()
+        
+        # Update settings in database
+        settings = AdminSettings.get_settings()
+        
+        if 'hf_token' in data:
+            settings.hf_token = data['hf_token']
+        if 'pixabay_key' in 
+            settings.pixabay_key = data['pixabay_key']
+        if 'unsplash_key' in 
+            settings.unsplash_key = data['unsplash_key']
+        if 'pexels_key' in data:
+            settings.pexels_key = data['pexels_key']
+        if 'gemini_key' in 
+            settings.gemini_api_key = data['gemini_key']
+            
+        db.session.commit()
+        
+        # Update runtime keys in gemini_service
+        update_api_keys_from_admin(
+            hf_token=data.get('hf_token'),
+            pixabay_key=data.get('pixabay_key'),
+            unsplash_key=data.get('unsplash_key'),
+            pexels_key=data.get('pexels_key'),
+            gemini_key=data.get('gemini_key')
+        )
+        
+        return jsonify({'success': True, 'message': 'API keys updated successfully'})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/admin/test-api-keys')
+def api_test_api_keys():
+    """
+    API endpoint to test if API keys are valid
+    """
+    try:
+        from gemini_service import get_current_api_keys
+        
+        keys = get_current_api_keys()
+        valid_keys = []
+        invalid_keys = []
+        
+        # Test each key (basic validation)
+        if keys.get('hf_token'):
+            valid_keys.append('Hugging Face')
+        else:
+            invalid_keys.append('Hugging Face')
+            
+        if keys.get('pixabay_key'):
+            valid_keys.append('Pixabay')
+        else:
+            invalid_keys.append('Pixabay')
+            
+        if keys.get('unsplash_key'):
+            valid_keys.append('Unsplash')
+        else:
+            invalid_keys.append('Unsplash')
+            
+        if keys.get('pexels_key'):
+            valid_keys.append('Pexels')
+        else:
+            invalid_keys.append('Pexels')
+            
+        if keys.get('gemini_key'):
+            valid_keys.append('Gemini')
+        else:
+            invalid_keys.append('Gemini')
+            
+        message = f"Valid keys: {', '.join(valid_keys)}" if valid_keys else "No keys configured"
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'valid_keys': valid_keys,
+            'invalid_keys': invalid_keys
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/buy_tokens')
 @login_required
