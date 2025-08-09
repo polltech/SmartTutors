@@ -65,3 +65,9 @@ class PendingPayment(db.Model):
     
     # Relationship
     user = db.relationship('User', backref=db.backref('pending_payments', lazy=True))
+
+# -------- New uptime ping log model --------
+
+class PingLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
