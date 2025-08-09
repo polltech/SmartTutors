@@ -27,18 +27,185 @@
                                 </label>
                                 <select class="form-select" id="subject" name="subject">
                                     <option value="">Select subject...</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="English">English</option>
-                                    <option value="Science">Science</option>
-                                    <option value="Kiswahili">Kiswahili</option>
-                                    <option value="CRE">Christian Religious Education</option>
-                                    <option value="History">History</option>
-                                    <option value="Geography">Geography</option>
-                                    <option value="Chemistry">Chemistry</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="Biology">Biology</option>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Business Studies">Business Studies</option>
+                                    <!-- Dynamic subjects based on curriculum and education level -->
+                                    {% if user.curriculum == '8-4-4' %}
+                                        {% if user.education_level == 'Baby Class' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                        {% elif user.education_level == 'Lower Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                        {% elif user.education_level == 'Upper Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                        {% elif user.education_level == 'High School' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                        {% elif user.education_level == 'Campus' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Engineering">Engineering</option>
+                                            <option value="Medicine">Medicine</option>
+                                            <option value="Law">Law</option>
+                                            <option value="Accounting">Accounting</option>
+                                        {% endif %}
+                                    {% elif user.curriculum == 'CBC' %}
+                                        {% if user.education_level == 'Baby Class' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                        {% elif user.education_level == 'Lower Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                        {% elif user.education_level == 'Upper Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                        {% elif user.education_level == 'High School' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                        {% elif user.education_level == 'Campus' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Engineering">Engineering</option>
+                                            <option value="Medicine">Medicine</option>
+                                            <option value="Law">Law</option>
+                                            <option value="Accounting">Accounting</option>
+                                        {% endif %}
+                                    {% elif user.curriculum == 'Tvet' %}
+                                        {% if user.education_level == 'Baby Class' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                        {% elif user.education_level == 'Lower Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Technical Drawing">Technical Drawing</option>
+                                            <option value="Home Science">Home Science</option>
+                                        {% elif user.education_level == 'Upper Primary' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Technical Drawing">Technical Drawing</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                        {% elif user.education_level == 'High School' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Technical Drawing">Technical Drawing</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Electrical Engineering">Electrical Engineering</option>
+                                            <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                            <option value="Civil Engineering">Civil Engineering</option>
+                                        {% elif user.education_level == 'Campus' %}
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="English">English</option>
+                                            <option value="Science">Science</option>
+                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="CRE">Christian Religious Education</option>
+                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Technical Drawing">Technical Drawing</option>
+                                            <option value="Home Science">Home Science</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Electrical Engineering">Electrical Engineering</option>
+                                            <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                            <option value="Civil Engineering">Civil Engineering</option>
+                                            <option value="Health Sciences">Health Sciences</option>
+                                            <option value="Agricultural Science">Agricultural Science</option>
+                                        {% endif %}
+                                    {% endif %}
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -133,10 +300,14 @@
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve quadratic equation: x² - 5x + 6 = 0</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain mitosis and meiosis</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Causes of World War I</button>
-                            {% else %}
+                            {% elif user.education_level == 'Campus' %}
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Calculus: Find derivative of x³ + 2x</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain quantum mechanics</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Machine learning basics</button>
+                            {% else %}
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is 5 + 3?</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain photosynthesis</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve quadratic equation</button>
                             {% endif %}
                         </div>
                     </div>
@@ -401,8 +572,8 @@ function formatAIResponse(text) {
     // Convert italic text (*text*)
     formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
     
-    // Detect and format math problems
-    if (formatted.match(/(\d+\s*[\+\-\*\/×÷]\s*\d+|\w+\s*=\s*\d+|solve|equation|formula)/i)) {
+    // Prevent excessive math formatting - only format when appropriate
+    if (formatted.length < 500 && formatted.match(/(\d+\s*[\+\-\*\/×÷]\s*\d+|\w+\s*=\s*\d+|solve|equation|formula)/i)) {
         formatted = formatMathContent(formatted);
     }
     
@@ -440,30 +611,25 @@ function formatAIResponse(text) {
     return formatted;
 }
 
-// Format math content with special styling
+// Format math content with special styling (only for reasonable lengths)
 function formatMathContent(text) {
-    // Wrap the entire content in a math block
-    let mathFormatted = `<div class="math-block">
-        <div class="content-block-header">
-            <i class="fas fa-calculator me-2"></i>Mathematics Solution
-        </div>
-        ${text}
-    </div>`;
-    
-    // Detect step-by-step solutions
-    if (text.match(/step\s*\d+/i)) {
-        mathFormatted = mathFormatted.replace(/step\s*(\d+):\s*(.+)/gi, function(match, num, content) {
-            return `<div class="math-step">
-                <span class="math-step-number">${num}</span>
-                ${content}
-            </div>`;
-        });
+    // Only format if text is reasonably short to prevent performance issues
+    if (text.length > 1000) {
+        return text;
     }
     
-    // Format mathematical expressions (basic)
-    mathFormatted = mathFormatted.replace(/(\d+\s*[\+\-\*\/×÷]\s*\d+\s*=\s*\d+)/g, '<div class="math-formula">$1</div>');
+    // Simple math formatting for short responses
+    if (text.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
+        // Wrap in math container
+        return `<div class="math-container p-3 bg-light rounded">
+            <div class="math-header text-center mb-2">
+                <i class="fas fa-calculator me-2"></i>Mathematical Solution
+            </div>
+            ${text}
+        </div>`;
+    }
     
-    return mathFormatted;
+    return text;
 }
 
 // Enhanced text formatting for better readability
@@ -517,6 +683,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+});
+
+// Subject selection enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    // Update subject options based on curriculum and education level
+    const subjectSelect = document.getElementById('subject');
+    const educationLevel = "{{ user.education_level }}";
+    const curriculum = "{{ user.curriculum }}";
+    
+    // This will be handled by server-side template rendering
+    // But we can add dynamic behavior if needed
 });
 </script>
 {% endblock %}
