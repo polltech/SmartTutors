@@ -217,8 +217,14 @@ def admin():
     # Get last ping time from DB
     last_ping_record = PingLog.query.order_by(PingLog.timestamp.desc()).first()
     last_ping_time = last_ping_record.timestamp.strftime("%Y-%m-%d %H:%M:%S") if last_ping_record else None
+    
+    # Get uptime duration
+    uptime_duration = PingLog.get_uptime_duration()
+    
+    # Get ping count
+    ping_count = PingLog.get_ping_count()
 
-    return render_template('admin.html', users=users, settings=settings, recent_chats=recent_chats, pending_payments=pending_payments, last_ping=last_ping_time)
+    return render_template('admin.html', users=users, settings=settings, recent_chats=recent_chats, pending_payments=pending_payments, last_ping_time=last_ping_time, uptime_duration=uptime_duration, ping_count=ping_count)
 
 @app.route('/admin/add_tokens', methods=['POST'])
 @login_required
