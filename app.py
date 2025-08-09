@@ -9,7 +9,8 @@ from flask_login import LoginManager
 # ---------------------------
 # Logging setup
 # ---------------------------
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ---------------------------
 # SQLAlchemy base and DB init
@@ -87,15 +88,20 @@ with app.app_context():
         db.session.add(settings)
 
         db.session.commit()
-        logging.info("✅ Default admin user and settings created.")
+        logger.info("✅ Default admin user and settings created.")
+
+    # Initialize API keys from environment if they exist
+    try:
+        from gemini_service import initialize_api_keys
+        initialize_api_keys()
+        logger.info("✅ API keys initialized from environment")
+    except Exception as e:
+        logger.warning(f"⚠️ API keys initialization failed: {e}")
 
 # ---------------------------
 # Import and register routes
 # ---------------------------
 import routes  # <- This is crucial to make your views work
-
-# ---------------------------
-
 
 # ---------------------------
 # Render / local run support
