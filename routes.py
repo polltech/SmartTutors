@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from app import app, db
 from models import User
-from config import MPESA_PAYBILL, PAYPAL_EMAIL  # Optional if you store payment config
 
 # ------------------------------
 # Home
@@ -89,7 +88,8 @@ def buy_tokens():
                 flash('Invalid token amount.', 'danger')
                 return redirect(url_for('buy_tokens'))
 
-            # Payment simulation (replace with MPESA / PayPal API)
+            # Manual payment simulation
+            # Here you would normally integrate MPESA/PayPal APIs
             current_user.tokens += tokens_to_buy
             db.session.commit()
 
@@ -100,9 +100,7 @@ def buy_tokens():
             flash(f'Error processing purchase: {e}', 'danger')
             return redirect(url_for('buy_tokens'))
 
-    return render_template('buy_tokens.html',
-                           mpesa_paybill=MPESA_PAYBILL if 'MPESA_PAYBILL' in globals() else None,
-                           paypal_email=PAYPAL_EMAIL if 'PAYPAL_EMAIL' in globals() else None)
+    return render_template('buy_tokens.html')
 
 # ------------------------------
 # AI Tutor Endpoint
