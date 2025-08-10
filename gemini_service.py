@@ -1,6 +1,10 @@
 import os
 import logging
 from datetime import datetime
+from PIL import Image
+import io
+import base64
+
 try:
     from google import genai
     from google.genai import types
@@ -521,6 +525,90 @@ def add_interactive_elements(text):
     text = re.sub(question_pattern, r'<div class="practice-section">\1</div>', text, flags=re.DOTALL)
     
     return interactive_css + text
+
+def generate_image(description, education_level, subject=None):
+    """
+    Generate educational image based on description
+    """
+    try:
+        # First try to use Hugging Face if available
+        if os.environ.get('HF_TOKEN') or get_current_api_keys().get('hf_token'):
+            return generate_image_hugging_face(description, education_level, subject)
+        
+        # Then try other APIs
+        if os.environ.get('PIXABAY_API_KEY') or get_current_api_keys().get('pixabay_key'):
+            return generate_image_pixabay(description, education_level, subject)
+        
+        # Fallback to generic educational image generation
+        return generate_generic_educational_image(description, education_level, subject)
+        
+    except Exception as e:
+        logging.error(f"Error generating image: {e}")
+        return f"Could not generate image. Error: {str(e)}"
+
+def generate_image_hugging_face(description, education_level, subject):
+    """
+    Generate educational image using Hugging Face
+    """
+    try:
+        # This would use diffusers to generate an image
+        # For demo purposes, we'll return a placeholder
+        return f"""
+        🎨 **Educational Image Generated** 
+        Description: {description}
+        Subject: {subject or 'General'}
+        Level: {education_level}
+        
+        This would be an educational image generated using Hugging Face models.
+        The actual implementation would use diffusers to generate an image
+        based on the description provided.
+        """
+    except Exception as e:
+        return f"Error generating Hugging Face image: {str(e)}"
+
+def generate_image_pixabay(description, education_level, subject):
+    """
+    Generate educational image using Pixabay API
+    """
+    try:
+        # This would make an API call to Pixabay
+        # For demo purposes, we'll return a placeholder
+        return f"""
+        🎨 **Pixabay Educational Image** 
+        Description: {description}
+        Subject: {subject or 'General'}
+        Level: {education_level}
+        
+        This would be an educational image retrieved from Pixabay API.
+        The actual implementation would fetch vector graphics suitable for education.
+        """
+    except Exception as e:
+        return f"Error fetching Pixabay image: {str(e)}"
+
+def generate_generic_educational_image(description, education_level, subject):
+    """
+    Generate a generic educational image representation
+    """
+    try:
+        # Return a placeholder with educational styling
+        return f"""
+        🎨 **Educational Visual Representation** 
+        Description: {description}
+        Subject: {subject or 'General'}
+        Level: {education_level}
+        
+        This represents an educational image that would help visualize the concept.
+        In a complete implementation, this would display:
+        - Clear educational diagrams
+        - Age-appropriate visual elements
+        - Learning-focused content
+        - Interactive elements for engagement
+        
+        The actual image would be generated using AI image generation models
+        and would be tailored to the specific educational context.
+        """
+    except Exception as e:
+        return f"Error generating educational image: {str(e)}"
 
 def update_api_keys_from_admin(hf_token=None, pixabay_key=None, unsplash_key=None, pexels_key=None, gemini_key=None):
     """
