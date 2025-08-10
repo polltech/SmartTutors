@@ -1,254 +1,128 @@
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from flask_login import login_user, login_required, logout_user, current_user
+import os
+from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db
-from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
-# Fixed imports - only import what actually exists
-from gemini_service import get_ai_response, generate_exam, generate_combined_response, update_api_keys_from_admin
-import logging
 from datetime import datetime
+from app import app, db
+from models import User
+from config import MPESA_PAYBILL, PAYPAL_EMAIL  # Optional if you store payment config
 
-# Secret key for /ping endpoint
-PING_SECRET = "PaulKeepAlive2025"
-
-@app.route('/ping')
-def ping():
-    key = request.args.get("key")
-    if key != PING_SECRET:
-        return "Unauthorized", 403
-    
-    # Save ping to DB
-    ping_log = PingLog(timestamp=datetime.utcnow())
-    db.session.add(ping_log)
-    db.session.commit()
-    
-    return "pong", 200
-
+# ------------------------------
+# Home
+# ------------------------------
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        education_level = request.form['education_level']
-        curriculum = request.form['curriculum']
-        
-        # Check if user already exists
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered!')
-            return redirect(url_for('register'))
-        
-        if User.query.filter_by(username=username).first():
-            flash('Username already taken!')
-            return redirect(url_for('register'))
-        
-        # Get free tokens from settings
-        settings = AdminSettings.get_settings()
-        
-        # Create new user
-        user = User()
-        user.username = username
-        user.email = email
-        user.password_hash = generate_password_hash(password)
-        user.education_level = education_level
-        user.curriculum = curriculum
-        user.tokens = settings.free_tokens_per_user
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('Registration successful! You can now log in.')
-        return redirect(url_for('login'))
-    
-    return render_template('register.html')
-
+# ------------------------------
+# Auth: Login
+# ------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        
-        user = User.query.filter_by(email=email).first()
-        
-        if user and check_password_hash(user.password_hash, password):
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid email or password!')
-    
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
+
     return render_template('login.html')
 
+# ------------------------------
+# Auth: Register
+# ------------------------------
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already taken', 'danger')
+            return redirect(url_for('register'))
+
+        hashed_pw = generate_password_hash(password)
+        new_user = User(username=username, email=email, password=hashed_pw, tokens=5)  # free tokens
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created! You can now log in.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+# ------------------------------
+# Auth: Logout
+# ------------------------------
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+# ------------------------------
+# Dashboard
+# ------------------------------
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    settings = AdminSettings.get_settings()
-    return render_template('dashboard.html', user=current_user, settings=settings)
+    return render_template('dashboard.html', tokens=current_user.tokens)
 
-@app.route('/chat', methods=['GET', 'POST'])
+# ------------------------------
+# Buy Tokens Page
+# ------------------------------
+@app.route('/buy_tokens', methods=['GET', 'POST'])
 @login_required
-def chat():
+def buy_tokens():
     if request.method == 'POST':
-        question = request.form['question']
-        subject = request.form.get('subject', '')
-        request_type = request.form.get('request_type', 'question')
-        
-        # Check if user has tokens
-        if current_user.tokens <= 0:
-            flash('You have no tokens left! Contact admin or make a payment.')
-            return redirect(url_for('dashboard'))
-        
-        # Determine token cost based on request type
-        token_cost = 1
-        if request_type in ['exam', 'combined']:
-            token_cost = 2  # More complex requests cost more tokens
-        
-        if current_user.tokens < token_cost:
-            flash(f'You need {token_cost} tokens for this request! You have {current_user.tokens} tokens.')
-            return redirect(url_for('dashboard'))
-        
-        # Get AI response based on request type
         try:
-            answer = None
-            if request_type == 'exam':
-                num_questions = int(request.form.get('num_questions', 10))
-                question_type = request.form.get('question_type', 'mixed')
-                answer = generate_exam(
-                    topic=question,
-                    education_level=current_user.education_level,
-                    curriculum=current_user.curriculum,
-                    subject=subject,
-                    num_questions=num_questions,
-                    question_type=question_type
-                )
-            elif request_type == 'combined':
-                answer = generate_combined_response(
-                    topic=question,
-                    education_level=current_user.education_level,
-                    curriculum=current_user.curriculum,
-                    subject=subject
-                )
-            else:  # Default question type
-                answer = get_ai_response(
-                    question=question,
-                    education_level=current_user.education_level,
-                    curriculum=current_user.curriculum,
-                    subject=subject,
-                    user_id=current_user.id
-                )
-            
-            # Save chat to database
-            chat = Chat()
-            chat.user_id = current_user.id
-            chat.subject = subject
-            chat.question = f"[{request_type.upper()}] {question}"
-            chat.answer = answer
-            chat.tokens_used = token_cost
-            db.session.add(chat)
-            
-            # Deduct tokens from user
-            current_user.tokens -= token_cost
+            tokens_to_buy = int(request.form.get('tokens'))
+            payment_method = request.form.get('payment_method')
+
+            if tokens_to_buy <= 0:
+                flash('Invalid token amount.', 'danger')
+                return redirect(url_for('buy_tokens'))
+
+            # Payment simulation (replace with MPESA / PayPal API)
+            current_user.tokens += tokens_to_buy
             db.session.commit()
-            
-            flash('Response generated successfully!')
-            latest_response = {
-                'question': question,
-                'answer': answer,
-                'subject': subject or 'General',
-                'request_type': request_type,
-                'tokens_used': token_cost
-            }
-            
-        except Exception as e:
-            logging.error(f"Error in chat: {e}")
-            flash(f'Error generating response: {str(e)}')
+
+            flash(f'Successfully purchased {tokens_to_buy} tokens!', 'success')
             return redirect(url_for('dashboard'))
-    
-    # Get recent chats for this user
-    recent_chats = Chat.query.filter_by(user_id=current_user.id).order_by(Chat.created_at.desc()).limit(10).all()
-    return render_template('chat.html', recent_chats=recent_chats, user=current_user, 
-                         latest_response=locals().get('latest_response'))
 
-@app.route('/history')
+        except Exception as e:
+            flash(f'Error processing purchase: {e}', 'danger')
+            return redirect(url_for('buy_tokens'))
+
+    return render_template('buy_tokens.html',
+                           mpesa_paybill=MPESA_PAYBILL if 'MPESA_PAYBILL' in globals() else None,
+                           paypal_email=PAYPAL_EMAIL if 'PAYPAL_EMAIL' in globals() else None)
+
+# ------------------------------
+# AI Tutor Endpoint
+# ------------------------------
+@app.route('/ask_ai', methods=['POST'])
 @login_required
-def history():
-    page = request.args.get('page', 1, type=int)
-    chats = Chat.query.filter_by(user_id=current_user.id).order_by(Chat.created_at.desc()).paginate(
-        page=page, per_page=20, error_out=False
-    )
-    return render_template('history.html', chats=chats, user=current_user)
+def ask_ai():
+    if current_user.tokens <= 0:
+        return jsonify({'error': 'You have no tokens left. Please buy more.'}), 403
 
-@app.route('/admin')
-@login_required
-def admin():
-    if current_user.role != 'admin':
-        flash('Access denied! Admin privileges required.')
-        return redirect(url_for('dashboard'))
-    
-    users = User.query.all()
-    settings = AdminSettings.get_settings()
-    recent_chats = Chat.query.order_by(Chat.created_at.desc()).limit(20).all()
-    pending_payments = PendingPayment.query.filter_by(status='pending').order_by(PendingPayment.date_submitted.desc()).all()
+    user_input = request.json.get('message')
 
-    # Get last ping time
-    last_ping_record = PingLog.query.order_by(PingLog.timestamp.desc()).first()
-    last_ping_time = last_ping_record.timestamp.strftime("%Y-%m-%d %H:%M:%S") if last_ping_record else None
-    uptime_duration = PingLog.get_uptime_duration()
-    ping_count = PingLog.get_ping_count()
+    if not user_input:
+        return jsonify({'error': 'Message is required'}), 400
 
-    return render_template('admin.html', users=users, settings=settings, recent_chats=recent_chats, 
-                           pending_payments=pending_payments, last_ping_time=last_ping_time, 
-                           uptime_duration=uptime_duration, ping_count=ping_count)
+    # Deduct token
+    current_user.tokens -= 1
+    db.session.commit()
 
-# ------------------------
-# FIXED BLOCK
-# ------------------------
-@app.route('/api/admin/update-api-keys', methods=['POST'])
-def api_update_api_keys():
-    """API endpoint to update API keys from admin panel"""
-    try:
-        data = request.get_json()
+    # Call AI API (placeholder)
+    ai_response = f"AI Response to: {user_input}"
 
-        # Update settings in database
-        settings = AdminSettings.get_settings()
-
-        if 'hf_token' in data:
-            settings.hf_token = data['hf_token']
-        if 'pixabay_key' in data:
-            settings.pixabay_key = data['pixabay_key']
-        if 'unsplash_key' in data:
-            settings.unsplash_key = data['unsplash_key']
-        if 'pexels_key' in data:
-            settings.pexels_key = data['pexels_key']
-        if 'gemini_key' in data:
-            settings.gemini_api_key = data['gemini_key']
-
-        db.session.commit()
-
-        # Update runtime keys in gemini_service
-        update_api_keys_from_admin(
-            hf_token=data.get('hf_token'),
-            pixabay_key=data.get('pixabay_key'),
-            unsplash_key=data.get('unsplash_key'),
-            pexels_key=data.get('pexels_key'),
-            gemini_key=data.get('gemini_key')
-        )
-
-        return jsonify({'success': True, 'message': 'API keys updated successfully'})
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-# ------------------------
-
-# The rest of your routes remain unchanged...
+    return jsonify({'response': ai_response, 'tokens_left': current_user.tokens})
