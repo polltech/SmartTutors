@@ -268,6 +268,10 @@ def update_settings():
         
         settings.free_tokens_per_user = int(request.form.get('free_tokens_per_user', 5))
         settings.gemini_api_key = request.form.get('gemini_api_key', '')
+        settings.hf_token = request.form.get('hf_token', '')  # Hugging Face API key
+        settings.pixabay_key = request.form.get('pixabay_key', '')  # Pixabay API key
+        settings.unsplash_key = request.form.get('unsplash_key', '')  # Unsplash API key
+        settings.pexels_key = request.form.get('pexels_key', '')  # Pexels API key
         settings.theme = request.form.get('theme', 'blue')
         settings.background_type = request.form.get('background_type', 'image')
         background_url = request.form.get('background_url', '').strip()
@@ -372,13 +376,13 @@ def api_update_api_keys():
         
         if 'hf_token' in data:
             settings.hf_token = data['hf_token']
-        if 'pixabay_key' in 
+        if 'pixabay_key' in data:
             settings.pixabay_key = data['pixabay_key']
-        if 'unsplash_key' in 
+        if 'unsplash_key' in data:
             settings.unsplash_key = data['unsplash_key']
         if 'pexels_key' in data:
             settings.pexels_key = data['pexels_key']
-        if 'gemini_key' in 
+        if 'gemini_key' in data:
             settings.gemini_api_key = data['gemini_key']
             
         db.session.commit()
