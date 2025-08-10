@@ -364,13 +364,13 @@ def api_update_api_keys():
         
         if 'hf_token' in 
             settings.hf_token = data['hf_token']
-        if 'pixabay_key' in 
+        if 'pixabay_key' in data:
             settings.pixabay_key = data['pixabay_key']
         if 'unsplash_key' in 
             settings.unsplash_key = data['unsplash_key']
         if 'pexels_key' in 
             settings.pexels_key = data['pexels_key']
-        if 'gemini_key' in data:
+        if 'gemini_key' in 
             settings.gemini_api_key = data['gemini_key']
             
         db.session.commit()
