@@ -3,7 +3,8 @@ from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
-from gemini_service import get_ai_response, generate_exam, generate_explanation, generate_image, generate_combined_response, update_api_keys_from_admin
+# Fixed imports - only import what actually exists
+from gemini_service import get_ai_response, generate_exam, generate_image, generate_combined_response, update_api_keys_from_admin
 import logging
 from datetime import datetime
 
@@ -130,13 +131,6 @@ def chat():
                     subject=subject,
                     num_questions=num_questions,
                     question_type=question_type
-                )
-            elif request_type == 'explanation':
-                answer = generate_explanation(
-                    topic=question,
-                    education_level=current_user.education_level,
-                    curriculum=current_user.curriculum,
-                    subject=subject
                 )
             elif request_type == 'image':
                 answer = generate_image(
