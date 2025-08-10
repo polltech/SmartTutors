@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
 # Fixed imports - only import what actually exists
-from gemini_service import get_ai_response, generate_exam, generate_image, generate_combined_response, update_api_keys_from_admin
+from gemini_service import get_ai_response, generate_exam, generate_combined_response, update_api_keys_from_admin
 import logging
 from datetime import datetime
 
@@ -111,7 +111,7 @@ def chat():
         
         # Determine token cost based on request type
         token_cost = 1
-        if request_type in ['exam', 'combined', 'image']:
+        if request_type in ['exam', 'combined']:
             token_cost = 2  # More complex requests cost more tokens
         
         if current_user.tokens < token_cost:
@@ -131,12 +131,6 @@ def chat():
                     subject=subject,
                     num_questions=num_questions,
                     question_type=question_type
-                )
-            elif request_type == 'image':
-                answer = generate_image(
-                    description=question,
-                    education_level=current_user.education_level,
-                    subject=subject
                 )
             elif request_type == 'combined':
                 answer = generate_combined_response(
@@ -368,13 +362,13 @@ def api_update_api_keys():
         # Update settings in database
         settings = AdminSettings.get_settings()
         
-        if 'hf_token' in data:
+        if 'hf_token' in 
             settings.hf_token = data['hf_token']
-        if 'pixabay_key' in data:
+        if 'pixabay_key' in 
             settings.pixabay_key = data['pixabay_key']
-        if 'unsplash_key' in data:
+        if 'unsplash_key' in 
             settings.unsplash_key = data['unsplash_key']
-        if 'pexels_key' in data:
+        if 'pexels_key' in 
             settings.pexels_key = data['pexels_key']
         if 'gemini_key' in data:
             settings.gemini_api_key = data['gemini_key']
