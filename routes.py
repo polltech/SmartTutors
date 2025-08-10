@@ -3,7 +3,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from models import User, Chat, Payment, AdminSettings, PendingPayment, PingLog
-from gemini_service import get_ai_response, analyze_uploaded_document, generate_exam, generate_explanation, generate_image, generate_combined_response, update_api_keys_from_admin
+from gemini_service import get_ai_response, generate_exam, generate_explanation, generate_image, generate_combined_response, update_api_keys_from_admin
 import logging
 from datetime import datetime
 
@@ -374,15 +374,15 @@ def api_update_api_keys():
         # Update settings in database
         settings = AdminSettings.get_settings()
         
-        if 'hf_token' in data:
+        if 'hf_token' in 
             settings.hf_token = data['hf_token']
-        if 'pixabay_key' in data:
+        if 'pixabay_key' in 
             settings.pixabay_key = data['pixabay_key']
         if 'unsplash_key' in data:
             settings.unsplash_key = data['unsplash_key']
-        if 'pexels_key' in data:
+        if 'pexels_key' in 
             settings.pexels_key = data['pexels_key']
-        if 'gemini_key' in data:
+        if 'gemini_key' in 
             settings.gemini_api_key = data['gemini_key']
             
         db.session.commit()
