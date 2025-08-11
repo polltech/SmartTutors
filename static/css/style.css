@@ -1090,3 +1090,24 @@ body {
     border: 1px solid #ddd !important;
   }
 }
+.image-generation-result {
+    margin: 15px 0;
+}
+
+.image-placeholder {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.image-placeholder h5 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+.image-placeholder p {
+    margin: 5px 0;
+    color: #6c757d;
+}
