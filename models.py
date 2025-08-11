@@ -80,8 +80,8 @@ class PendingPayment(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship
-    user = db.relationship('User', backref=db.backref('pending_payments', lazy=True))
+    # Relationship - Fixed the backref to avoid naming conflicts
+    user = db.relationship('User', backref='pending_payments')
 
     def __repr__(self):
         return f'<PendingPayment {self.id}>'
@@ -126,7 +126,7 @@ class ImageGenerationLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationship
-    user = db.relationship('User', backref=db.backref('image_logs', lazy=True))
+    user = db.relationship('User', backref='image_logs')
 
     def __repr__(self):
         return f'<ImageGenerationLog {self.id}>'
