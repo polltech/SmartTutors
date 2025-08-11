@@ -32,10 +32,14 @@
                                         {% if user.education_level == 'Baby Class' %}
                                             <option value="Mathematics">Mathematics</option>
                                             <option value="English">English</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="Storytelling">Storytelling</option>
+                                            <option value="Environment-Science">Environment Science</option>
                                             <option value="CRE">Christian Religious Education</option>
+                                    <option value="Creative Arts">Creative Arts</option>
+                                    <option value ="Physical Education">Physical Education</option>
                                             <option value="Social Studies">Social Studies</option>
+                                    <option value="music">    Music</option>
+                                    
                                         {% elif user.education_level == 'Lower Primary' %}
                                             <option value="Mathematics">Mathematics</option>
                                             <option value="English">English</option>
@@ -59,61 +63,85 @@
                                         {% elif user.education_level == 'High School' %}
                                             <option value="Mathematics">Mathematics</option>
                                             <option value="English">English</option>
-                                            <option value="Science">Science</option>
+                                            <option value="Chemistry">Chemistry</option>
                                             <option value="Kiswahili">Kiswahili</option>
                                             <option value="CRE">Christian Religious Education</option>
-                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="Biology">Biology</option>
                                             <option value="Art">Art</option>
                                             <option value="Music">Music</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="Drama">Drama</option>
                                             <option value="Home Science">Home Science</option>
                                             <option value="Physical Education">Physical Education</option>
                                             <option value="Computer Science">Computer Science</option>
                                             <option value="Business Studies">Business Studies</option>
                                         {% elif user.education_level == 'Campus' %}
-                                            <option value="Mathematics">Mathematics</option>
-                                            <option value="English">English</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Kiswahili">Kiswahili</option>
-                                            <option value="CRE">Christian Religious Education</option>
-                                            <option value="Social Studies">Social Studies</option>
-                                            <option value="Art">Art</option>
-                                            <option value="Music">Music</option>
-                                            <option value="Home Science">Home Science</option>
-                                            <option value="Physical Education">Physical Education</option>
+                                            <option value="Communication skills">Communication Skills</option>
+                                            <option value="Business Administration">Business Administration</option>
+                                            <option value="Marketing">Marketing</option>
+                                            <option value="Political Science">Political Science</option>
+                                            <option value="Finance&Banking">Finance and Banking</option>
+                                            <option value="Education Arts">Education Arts</option>
+                                            <option value="Education Science">Education Science</option>
+                                            <option value="Nursing">Nursing</option>
+                                            <option value="Dentistry">Dentistry</option>
+                                            <option value="Surgery">Surgery</option>
                                             <option value="Computer Science">Computer Science</option>
-                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Business Studies">Chef</option>
                                             <option value="Engineering">Engineering</option>
                                             <option value="Medicine">Medicine</option>
                                             <option value="Law">Law</option>
                                             <option value="Accounting">Accounting</option>
+                                    <option value="International Relation">International Relation</option>
+                                    <option value="Statistics">Statistics</option>
+                                    <option value="Actuaries">Actuaries</option>
+                                    <option value="Theology">Theology</option>
+                                    <option value="Fine Arts">Fine Arts</option>
+                                    <option value="Architecture">Architecture</option>
+                                    <option value="Journalism " >Journalism</option>
+                                    <option value="Film and media">Film and Media</option>
+                                    <option value="Hospitality">Hospitality</option>
+                                    <option value="Tourism Management">Tourism Management</option>
+                                    <option value="Social Science">Social Science</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="ICT">ICT</option>
+                                    
                                         {% endif %}
                                     {% elif user.curriculum == 'CBC' %}
                                         {% if user.education_level == 'Baby Class' %}
-                                            <option value="Mathematics">Mathematics</option>
-                                            <option value="English">English</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Kiswahili">Kiswahili</option>
+                                            <option value="Mathematics Activities">Mathematics Activities</option>
+                                            <option value="Languages Activities">Languages Activities</option>
+                                            <option value="Creative Arts">Creative Arts</option>
+                                            <option value="psychomotor">Psychomotor</option>
                                             <option value="CRE">Christian Religious Education</option>
-                                            <option value="Social Studies">Social Studies</option>
+                                            <option value="drawing">Drawing</option>
+                                    <option value="Coloring">Coloring</option>
+                                    <option value="Storytelling">Storytelling</option>
+                                    <option value="music">Music</option>
+                                    <option value="singing">Singing</option>
+                                    
                                         {% elif user.education_level == 'Lower Primary' %}
-                                            <option value="Mathematics">Mathematics</option>
-                                            <option value="English">English</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Kiswahili">Kiswahili</option>
-                                            <option value="CRE">Christian Religious Education</option>
-                                            <option value="Social Studies">Social Studies</option>
-                                            <option value="Art">Art</option>
-                                            <option value="Music">Music</option>
+                                            <option value="Mathematics Activities">Mathematics Activities</option>
+                                            <option value="English Activities">English Activities</option>
+                                            <option value="Mother Tongue Activities">Mother tongue activities</option>
+                                            <option value="Environment Activities">Environment Activities</option>
+                                            <option value="CRE Activities">Christian Religious Activities</option>
+                                            <option value="Hygiene and Nutrition Activities">Hygiene and Nutrition activities</option>
+                                            <option value="Drawing Crafts">Drawingand Crafts</option>
+                                            <option value="Basic ICT Awareness">Basic ICT Awareness</option>
+                                    <option value="physical & Health Education">Physical &Health Education</option>
+                                    <option value="Indigenous Knowledge">Indigenous Knowledge Activities</option>
                                         {% elif user.education_level == 'Upper Primary' %}
                                             <option value="Mathematics">Mathematics</option>
                                             <option value="English">English</option>
                                             <option value="Science">Science</option>
+                                    <option value="Technology">Technology</option>
                                             <option value="Kiswahili">Kiswahili</option>
                                             <option value="CRE">Christian Religious Education</option>
                                             <option value="Social Studies">Social Studies</option>
                                             <option value="Art">Art</option>
                                             <option value="Music">Music</option>
-                                            <option value="Home Science">Home Science</option>
+                                            <option value="ICT Intergration Skills">ICT Intergration Activities</option>
                                             <option value="Physical Education">Physical Education</option>
                                         {% elif user.education_level == 'High School' %}
                                             <option value="Mathematics">Mathematics</option>
@@ -128,19 +156,24 @@
                                             <option value="Physical Education">Physical Education</option>
                                             <option value="Computer Science">Computer Science</option>
                                             <option value="Business Studies">Business Studies</option>
+                                    <option value="Agriculture Science">Agriculture Science</option>
+                                    <option value=" sports and physicals">Sports and Physicals Education</option>
+                                    <option value="Visual Arts">Visual Arts</option>
+                                    <option value="Foreign Languages">Foreign languages</option>
+                                    <option  value="Pre-Technical studies">Pre-Technical Studies</option>
                                         {% elif user.education_level == 'Campus' %}
-                                            <option value="Mathematics">Mathematics</option>
-                                            <option value="English">English</option>
-                                            <option value="Science">Science</option>
-                                            <option value="Kiswahili">Kiswahili</option>
-                                            <option value="CRE">Christian Religious Education</option>
-                                            <option value="Social Studies">Social Studies</option>
-                                            <option value="Art">Art</option>
-                                            <option value="Music">Music</option>
-                                            <option value="Home Science">Home Science</option>
+                                            <option value="Statistics">Statistics</option>
+                                            <option value="Hospitality">Hospitality</option>
+                                            <option value="Architecture">Architecture</option>
+                                            <option value="Agriculture">Agriculture</option>
+                                            <option value="Education">Education</option>
+                                            <option value="Enteprenuer">Enteprenuer</option>
+                                            <option value="Theology">Theology</option>
+                                            <option value="Political Science">Political Science</option>
+                                            <option value="Economcics">Economics</option>
                                             <option value="Physical Education">Physical Education</option>
                                             <option value="Computer Science">Computer Science</option>
-                                            <option value="Business Studies">Business Studies</option>
+                                            <option value="Business managements">Business Managements</option>
                                             <option value="Engineering">Engineering</option>
                                             <option value="Medicine">Medicine</option>
                                             <option value="Law">Law</option>
