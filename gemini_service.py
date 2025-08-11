@@ -174,6 +174,7 @@ def format_structured_response(response_text):
         
         # Visual aid section
         if 'visual' in sections and sections['visual'].lower() not in ['none needed', 'none', '']:
+            # Add image generation support here
             html_parts.append(f'''
             <div class="visual-section">
                 <div class="section-header">
@@ -182,6 +183,10 @@ def format_structured_response(response_text):
                 </div>
                 <div class="visual-content info-box">
                     <i class="fas fa-lightbulb"></i> {sections['visual']}
+                    <!-- Image generation placeholder -->
+                    <div class="image-generation-placeholder mt-2">
+                        <small class="text-muted">Image would be generated here based on the description above</small>
+                    </div>
                 </div>
             </div>
             ''')
