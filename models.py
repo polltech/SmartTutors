@@ -8,7 +8,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='student')  # student, admin
+    role = db.Column(db.String(20), default='student')  # student, admi
     tokens = db.Column(db.Integer, default=5)
     education_level = db.Column(db.String(50), nullable=True)  # Baby Class, Lower Primary, etc.
     curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4, TVET
