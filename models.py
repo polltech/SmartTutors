@@ -17,6 +17,10 @@ class User(UserMixin, db.Model):
     # Relationships
     chats = db.relationship('Chat', backref='user', lazy=True, cascade='all, delete-orphan')
     payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
+    pending_payments = db.relationship('PendingPayment', backref='user', lazy=True, cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +31,9 @@ class Chat(db.Model):
     tokens_used = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def __repr__(self):
+        return f'<Chat {self.id}>'
+
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -36,6 +43,9 @@ class Payment(db.Model):
     payment_method = db.Column(db.String(20), nullable=False)  # MPESA, Manual
     status = db.Column(db.String(20), default='completed')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Payment {self.id}>'
 
 class AdminSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +70,9 @@ class AdminSettings(db.Model):
             db.session.commit()
         return settings
 
+    def __repr__(self):
+        return f'<AdminSettings {self.id}>'
+
 class PendingPayment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -69,6 +82,9 @@ class PendingPayment(db.Model):
     
     # Relationship
     user = db.relationship('User', backref=db.backref('pending_payments', lazy=True))
+
+    def __repr__(self):
+        return f'<PendingPayment {self.id}>'
 
 # -------- New uptime ping log model --------
 class PingLog(db.Model):
@@ -95,3 +111,22 @@ class PingLog(db.Model):
     def get_ping_count(cls):
         """Get total number of pings"""
         return cls.query.count()
+
+    def __repr__(self):
+        return f'<PingLog {self.id}>'
+
+# -------- Additional Model for Image Generation Logs --------
+class ImageGenerationLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    subject = db.Column(db.String(50), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
+    api_source = db.Column(db.String(20), nullable=True)  # huggingface, pixabay, etc.
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship
+    user = db.relationship('User', backref=db.backref('image_logs', lazy=True))
+
+    def __repr__(self):
+        return f'<ImageGenerationLog {self.id}>'
