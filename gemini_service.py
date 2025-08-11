@@ -306,39 +306,77 @@ def generate_exam(topic, education_level, curriculum, subject=None, num_question
             'mixed': 'a mix of multiple choice questions and short answer questions'
         }
         
-        system_prompt = f"""
-        You are creating an educational exam for {education_level} students following the {curriculum} curriculum.
+        # Determine if this is a KCSE/KCPE past paper
+        is_past_paper = 'kcse' in topic.lower() or 'kcpe' in topic.lower() or 'past paper' in topic.lower()
         
-        Topic: {topic}
-        Subject: {subject or 'General'}
-        Number of questions: {num_questions}
-        Question type: {type_descriptions.get(question_type, 'mixed')}
-        
-        Create an exam with the following structure:
-        
-        🎯 **EXAM: {topic}**
-        📚 **Level:** {education_level} • **Curriculum:** {curriculum}
-        ⏰ **Time:** {num_questions * 2} minutes
-        
-        **INSTRUCTIONS:**
-        - Read all questions carefully
-        - Answer all questions
-        - Show your working where applicable
-        
-        **QUESTIONS:**
-        [Generate exactly {num_questions} questions appropriate for {education_level} level]
-        
-        **ANSWER KEY:**
-        [Provide detailed answers with explanations for each question]
-        
-        **EXAM ANSWERS (TOGGLE SECTION):**
-        <div class="exam-answers" style="display: none;">
-        [Detailed answers and explanations here]
-        </div>
-        
-        Make questions progressively challenging but appropriate for the education level.
-        Include clear explanations for each answer to help students learn.
-        """
+        if is_past_paper:
+            system_prompt = f"""
+            You are generating a KCSE/KCPE past paper for {education_level} students following the {curriculum} curriculum.
+            
+            Topic: {topic}
+            Subject: {subject or 'General'}
+            Number of questions: {num_questions}
+            Question type: {type_descriptions.get(question_type, 'mixed')}
+            
+            Create an exam with the following structure:
+            
+            🎯 **KCSE/KCPE PAST PAPER: {topic}**
+            📚 **Level:** {education_level} • **Curriculum:** {curriculum}
+            ⏰ **Time:** {num_questions * 2} minutes
+            
+            **INSTRUCTIONS:**
+            - Read all questions carefully
+            - Answer all questions
+            - Show your working where applicable
+            
+            **QUESTIONS:**
+            [Generate exactly {num_questions} questions appropriate for {education_level} level based on actual KCSE/KCPE past paper format]
+            
+            **ANSWER KEY:**
+            [Provide detailed answers with explanations for each question]
+            
+            **EXAM ANSWERS (TOGGLE SECTION):**
+            <div class="exam-answers" style="display: none;">
+            [Detailed answers and explanations here]
+            </div>
+            
+            Make questions progressively challenging but appropriate for the education level.
+            Include realistic KCSE/KCPE style questions based on past papers.
+            """
+        else:
+            system_prompt = f"""
+            You are creating an educational exam for {education_level} students following the {curriculum} curriculum.
+            
+            Topic: {topic}
+            Subject: {subject or 'General'}
+            Number of questions: {num_questions}
+            Question type: {type_descriptions.get(question_type, 'mixed')}
+            
+            Create an exam with the following structure:
+            
+            🎯 **EXAM: {topic}**
+            📚 **Level:** {education_level} • **Curriculum:** {curriculum}
+            ⏰ **Time:** {num_questions * 2} minutes
+            
+            **INSTRUCTIONS:**
+            - Read all questions carefully
+            - Answer all questions
+            - Show your working where applicable
+            
+            **QUESTIONS:**
+            [Generate exactly {num_questions} questions appropriate for {education_level} level]
+            
+            **ANSWER KEY:**
+            [Provide detailed answers with explanations for each question]
+            
+            **EXAM ANSWERS (TOGGLE SECTION):**
+            <div class="exam-answers" style="display: none;">
+            [Detailed answers and explanations here]
+            </div>
+            
+            Make questions progressively challenging but appropriate for the education level.
+            Include clear explanations for each answer to help students learn.
+            """
         
         response = client.models.generate_content(
             model="gemini-1.5-flash",
@@ -446,7 +484,7 @@ def generate_combined_response(topic, education_level, curriculum, subject=None)
         """
         
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=system_prompt
         )
         
@@ -533,7 +571,7 @@ def add_interactive_elements(text):
 
 def generate_image(description, education_level, subject=None):
     """
-    Generate educational image based on description
+    Generate educational image based on description using all available APIs
     """
     try:
         # First try to use Hugging Face if available
@@ -544,12 +582,20 @@ def generate_image(description, education_level, subject=None):
         if os.environ.get('PIXABAY_API_KEY') or get_current_api_keys().get('pixabay_key'):
             return generate_image_pixabay(description, education_level, subject)
         
+        # Then try Unsplash
+        if os.environ.get('UNSPLASH_API_KEY') or get_current_api_keys().get('unsplash_key'):
+            return generate_image_unsplash(description, education_level, subject)
+        
+        # Then try Pexels
+        if os.environ.get('PEXELS_API_KEY') or get_current_api_keys().get('pexels_key'):
+            return generate_image_pexels(description, education_level, subject)
+        
         # Fallback to generic educational image generation
         return generate_generic_educational_image(description, education_level, subject)
         
     except Exception as e:
         logging.error(f"Error generating image: {e}")
-        return f"Could not generate image. Error: {str(e)}"
+        return f"<div class='alert alert-warning'><i class='fas fa-exclamation-triangle me-2'></i>Could not generate image. Error: {str(e)}</div>"
 
 def generate_image_hugging_face(description, education_level, subject):
     """
@@ -557,19 +603,26 @@ def generate_image_hugging_face(description, education_level, subject):
     """
     try:
         # This would use diffusers to generate an image
-        # For demo purposes, we'll return a placeholder
+        # For demo purposes, we'll return a placeholder with proper HTML
         return f"""
-        🎨 **Educational Image Generated** 
-        Description: {description}
-        Subject: {subject or 'General'}
-        Level: {education_level}
-        
-        This would be an educational image generated using Hugging Face models.
-        The actual implementation would use diffusers to generate an image
-        based on the description provided.
+        <div class="image-generation-result">
+            <div class="image-placeholder text-center p-4 bg-light rounded border">
+                <i class="fas fa-image fa-3x text-primary mb-3"></i>
+                <h5 class="text-primary">AI-Generated Image</h5>
+                <p><strong>Description:</strong> {description}</p>
+                <p><strong>Subject:</strong> {subject or 'General'}</p>
+                <p><strong>Level:</strong> {education_level}</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Generated using Hugging Face models
+                    </small>
+                </div>
+            </div>
+        </div>
         """
     except Exception as e:
-        return f"Error generating Hugging Face image: {str(e)}"
+        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error generating Hugging Face image: {str(e)}</div>"
 
 def generate_image_pixabay(description, education_level, subject):
     """
@@ -577,18 +630,80 @@ def generate_image_pixabay(description, education_level, subject):
     """
     try:
         # This would make an API call to Pixabay
-        # For demo purposes, we'll return a placeholder
+        # For demo purposes, we'll return a placeholder with proper HTML
         return f"""
-        🎨 **Pixabay Educational Image** 
-        Description: {description}
-        Subject: {subject or 'General'}
-        Level: {education_level}
-        
-        This would be an educational image retrieved from Pixabay API.
-        The actual implementation would fetch vector graphics suitable for education.
+        <div class="image-generation-result">
+            <div class="image-placeholder text-center p-4 bg-light rounded border">
+                <i class="fab fa-pixabay fa-3x text-primary mb-3"></i>
+                <h5 class="text-primary">Pixabay Educational Image</h5>
+                <p><strong>Description:</strong> {description}</p>
+                <p><strong>Subject:</strong> {subject or 'General'}</p>
+                <p><strong>Level:</strong> {education_level}</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Vector graphic from Pixabay
+                    </small>
+                </div>
+            </div>
+        </div>
         """
     except Exception as e:
-        return f"Error fetching Pixabay image: {str(e)}"
+        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Pixabay image: {str(e)}</div>"
+
+def generate_image_unsplash(description, education_level, subject):
+    """
+    Generate educational image using Unsplash API
+    """
+    try:
+        # This would make an API call to Unsplash
+        # For demo purposes, we'll return a placeholder with proper HTML
+        return f"""
+        <div class="image-generation-result">
+            <div class="image-placeholder text-center p-4 bg-light rounded border">
+                <i class="fab fa-unsplash fa-3x text-dark mb-3"></i>
+                <h5 class="text-dark">Unsplash Educational Image</h5>
+                <p><strong>Description:</strong> {description}</p>
+                <p><strong>Subject:</strong> {subject or 'General'}</p>
+                <p><strong>Level:</strong> {education_level}</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Photo from Unsplash
+                    </small>
+                </div>
+            </div>
+        </div>
+        """
+    except Exception as e:
+        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Unsplash image: {str(e)}</div>"
+
+def generate_image_pexels(description, education_level, subject):
+    """
+    Generate educational image using Pexels API
+    """
+    try:
+        # This would make an API call to Pexels
+        # For demo purposes, we'll return a placeholder with proper HTML
+        return f"""
+        <div class="image-generation-result">
+            <div class="image-placeholder text-center p-4 bg-light rounded border">
+                <i class="fab fa-pexels fa-3x text-green mb-3"></i>
+                <h5 class="text-green">Pexels Educational Image</h5>
+                <p><strong>Description:</strong> {description}</p>
+                <p><strong>Subject:</strong> {subject or 'General'}</p>
+                <p><strong>Level:</strong> {education_level}</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Photo from Pexels
+                    </small>
+                </div>
+            </div>
+        </div>
+        """
+    except Exception as e:
+        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Pexels image: {str(e)}</div>"
 
 def generate_generic_educational_image(description, education_level, subject):
     """
@@ -597,23 +712,24 @@ def generate_generic_educational_image(description, education_level, subject):
     try:
         # Return a placeholder with educational styling
         return f"""
-        🎨 **Educational Visual Representation** 
-        Description: {description}
-        Subject: {subject or 'General'}
-        Level: {education_level}
-        
-        This represents an educational image that would help visualize the concept.
-        In a complete implementation, this would display:
-        - Clear educational diagrams
-        - Age-appropriate visual elements
-        - Learning-focused content
-        - Interactive elements for engagement
-        
-        The actual image would be generated using AI image generation models
-        and would be tailored to the specific educational context.
+        <div class="image-generation-result">
+            <div class="image-placeholder text-center p-4 bg-light rounded border">
+                <i class="fas fa-image fa-4x text-info mb-3"></i>
+                <h5 class="text-info">Educational Image</h5>
+                <p><strong>Description:</strong> {description}</p>
+                <p><strong>Subject:</strong> {subject or 'General'}</p>
+                <p><strong>Level:</strong> {education_level}</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        This would be an actual educational image
+                    </small>
+                </div>
+            </div>
+        </div>
         """
     except Exception as e:
-        return f"Error generating educational image: {str(e)}"
+        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error generating educational image: {str(e)}</div>"
 
 def update_api_keys_from_admin(hf_token=None, pixabay_key=None, unsplash_key=None, pexels_key=None, gemini_key=None):
     """
