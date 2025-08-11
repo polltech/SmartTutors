@@ -14,10 +14,9 @@ class User(UserMixin, db.Model):
     curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4, TVET
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships - Fixed to avoid conflicts
+    # Relationships
     chats = db.relationship('Chat', backref='user', lazy=True, cascade='all, delete-orphan')
     payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
-    # Fixed: Direct relationship without conflicting backref syntax
     pending_payments = db.relationship('PendingPayment', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -81,7 +80,7 @@ class PendingPayment(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Fixed relationship - simplified approach
+    # Relationship - This should work now
     user = db.relationship('User', backref='pending_payments')
 
     def __repr__(self):
