@@ -14,10 +14,11 @@ class User(UserMixin, db.Model):
     curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4, TVET
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
+    # Relationships (backref creates reverse access automatically)
     chats = db.relationship('Chat', backref='user', lazy=True, cascade='all, delete-orphan')
     payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
     pending_payments = db.relationship('PendingPayment', backref='user', lazy=True, cascade='all, delete-orphan')
+    image_logs = db.relationship('ImageGenerationLog', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -80,8 +81,7 @@ class PendingPayment(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship - This should work now
-    user = db.relationship('User', backref='pending_payments')
+    # Relationship already created via User.pending_payments (no duplicate here)
 
     def __repr__(self):
         return f'<PendingPayment {self.id}>'
@@ -125,8 +125,7 @@ class ImageGenerationLog(db.Model):
     api_source = db.Column(db.String(20), nullable=True)  # huggingface, pixabay, etc.
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship
-    user = db.relationship('User', backref='image_logs')
+    # Relationship already created via User.image_logs (no duplicate here)
 
     def __repr__(self):
         return f'<ImageGenerationLog {self.id}>'
