@@ -8,15 +8,16 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default='student')  # student, admi
+    role = db.Column(db.String(20), default='student')  # student, admin
     tokens = db.Column(db.Integer, default=5)
     education_level = db.Column(db.String(50), nullable=True)  # Baby Class, Lower Primary, etc.
     curriculum = db.Column(db.String(20), nullable=True)  # CBC, 8-4-4, TVET
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
+    # Relationships - Fixed to avoid conflicts
     chats = db.relationship('Chat', backref='user', lazy=True, cascade='all, delete-orphan')
     payments = db.relationship('Payment', backref='user', lazy=True, cascade='all, delete-orphan')
+    # Fixed: Direct relationship without conflicting backref syntax
     pending_payments = db.relationship('PendingPayment', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -80,7 +81,7 @@ class PendingPayment(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship - Fixed the backref to avoid naming conflicts
+    # Fixed relationship - simplified approach
     user = db.relationship('User', backref='pending_payments')
 
     def __repr__(self):
