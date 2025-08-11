@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-
 {% block title %}Chat with AI Tutor{% endblock %}
-
 {% block content %}
 <div class="container py-4">
     <div class="row">
@@ -9,7 +7,7 @@
         <div class="col-lg-8 mb-4">
             <div class="card border-0 glass-card h-100">
                 <div class="card-header bg-transparent border-0">
-                    <div class="d-flex justify-content-between align-items-center"
+                    <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
                             <i class="fas fa-robot me-2 text-primary"></i>AI Tutor Chat
                         </h4>
@@ -39,7 +37,6 @@
                                     <option value ="Physical Education">Physical Education</option>
                                             <option value="Social Studies">Social Studies</option>
                                     <option value="music">    Music</option>
-                                    
                                         {% elif user.education_level == 'Lower Primary' %}
                                             <option value="Mathematics">Mathematics</option>
                                             <option value="English">English</option>
@@ -105,7 +102,6 @@
                                     <option value="Social Science">Social Science</option>
                                     <option value="Agriculture">Agriculture</option>
                                     <option value="ICT">ICT</option>
-                                    
                                         {% endif %}
                                     {% elif user.curriculum == 'CBC' %}
                                         {% if user.education_level == 'Baby Class' %}
@@ -119,7 +115,6 @@
                                     <option value="Storytelling">Storytelling</option>
                                     <option value="music">Music</option>
                                     <option value="singing">Singing</option>
-                                    
                                         {% elif user.education_level == 'Lower Primary' %}
                                             <option value="Mathematics Activities">Mathematics Activities</option>
                                             <option value="English Activities">English Activities</option>
@@ -250,7 +245,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="mb-3">
                             <label for="request_type" class="form-label">
                                 <i class="fas fa-tasks me-1"></i>What would you like?
@@ -263,7 +257,6 @@
                                 <option value="combined">Explanation with Images</option>
                             </select>
                         </div>
-
                         <div class="mb-3">
                             <label for="question" class="form-label">
                                 <i class="fas fa-question-circle me-1"></i><span id="question-label">Your Question</span>
@@ -274,7 +267,6 @@
                                 Please enter your request.
                             </div>
                         </div>
-
                         <!-- Exam Options (shown when exam type is selected) -->
                         <div id="exam-options" class="mb-3" style="display: none;">
                             <div class="row">
@@ -298,7 +290,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="d-flex gap-2 align-items-center">
                             <button type="submit" class="btn btn-primary glow-button" 
                                     {% if user.tokens <= 0 %}disabled{% endif %}>
@@ -312,7 +303,6 @@
                             {% endif %}
                         </div>
                     </form>
-
                     <!-- Sample Questions -->
                     <div class="mt-4">
                         <h6 class="text-muted">Sample Questions for {{ user.education_level }}:</h6>
@@ -344,7 +334,6 @@
                             {% endif %}
                         </div>
                     </div>
-                    
                     <!-- Display Latest AI Response -->
                     {% if latest_response %}
                     <div class="mt-4">
@@ -365,7 +354,6 @@
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
-                        
                         <div class="card border-0 glass-card">
                             <div class="card-header bg-transparent border-0">
                                 <h6 class="mb-0 text-muted">
@@ -376,7 +364,6 @@
                                 <p class="mb-0">{{ latest_response.question }}</p>
                             </div>
                         </div>
-                        
                         <div class="card border-0 glass-card mt-3">
                             <div class="card-header bg-transparent border-0">
                                 <h6 class="mb-0 text-primary">
@@ -394,7 +381,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Recent Chats Sidebar -->
         <div class="col-lg-4">
             <div class="card border-0 glass-card">
@@ -444,7 +430,6 @@
         </div>
     </div>
 </div>
-
 <!-- Chat View Modal -->
 <div class="modal fade" id="chatModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -483,7 +468,6 @@
     </div>
 </div>
 {% endblock %}
-
 {% block extra_scripts %}
 <script>
 // Form validation
@@ -502,7 +486,6 @@
         });
     }, false);
 })();
-
 // Dynamic interface based on request type
 document.getElementById('request_type').addEventListener('change', function() {
     const requestType = this.value;
@@ -510,10 +493,8 @@ document.getElementById('request_type').addEventListener('change', function() {
     const questionLabel = document.getElementById('question-label');
     const questionTextarea = document.getElementById('question');
     const submitButton = document.querySelector('button[type="submit"]');
-    
     // Hide exam options by default
     examOptions.style.display = 'none';
-    
     // Update interface based on selection
     switch(requestType) {
         case 'question':
@@ -534,8 +515,8 @@ document.getElementById('request_type').addEventListener('change', function() {
             break;
         case 'image':
             questionLabel.textContent = 'Image Description';
-            questionTextarea.placeholder = 'Describe what image you need for learning. For example:\n- A diagram showing parts of a flower\n- Map of Kenya showing all counties\n- Solar system with all planets\n- Water cycle illustration';
-            submitButton.innerHTML = '<i class="fas fa-image me-2"></i>Generate Image';
+            questionTextarea.placeholder = 'Describe what educational image you need. For example:\n- A diagram showing parts of a flower\n- Map of Kenya showing all counties\n- Solar system with all planets\n- Water cycle illustration';
+            submitButton.innerHTML = '<i class="fas fa-image me-2"></i>Generate Educational Image';
             break;
         case 'combined':
             questionLabel.textContent = 'Topic for Explanation with Images';
@@ -544,29 +525,24 @@ document.getElementById('request_type').addEventListener('change', function() {
             break;
     }
 });
-
 // Sample questions
 document.querySelectorAll('.sample-question').forEach(button => {
     button.addEventListener('click', function() {
         document.getElementById('question').value = this.textContent;
     });
 });
-
 // View chat functionality
 document.querySelectorAll('.view-chat').forEach(button => {
     button.addEventListener('click', function() {
         const question = this.dataset.question;
         const answer = this.dataset.answer;
         const subject = this.dataset.subject;
-        
         document.getElementById('modal-subject').textContent = subject;
         document.getElementById('modal-question').textContent = question;
         document.getElementById('modal-answer').innerHTML = formatAIResponse(answer);
-        
         new bootstrap.Modal(document.getElementById('chatModal')).show();
     });
 });
-
 // Copy answer functionality
 document.getElementById('copy-answer').addEventListener('click', function() {
     const answer = document.getElementById('modal-answer').textContent;
@@ -577,7 +553,6 @@ document.getElementById('copy-answer').addEventListener('click', function() {
         }, 2000);
     });
 });
-
 // Text-to-speech functionality
 document.getElementById('speak-answer').addEventListener('click', function() {
     const answer = document.getElementById('modal-answer').textContent;
@@ -589,11 +564,9 @@ document.getElementById('speak-answer').addEventListener('click', function() {
         }, 3000);
     }
 });
-
 // Format AI Response for better visibility and structure
 function formatAIResponse(text) {
     if (!text) return '';
-    
     let formatted = text;
     
     // Convert headers (## Header)
@@ -604,11 +577,6 @@ function formatAIResponse(text) {
     
     // Convert italic text (*text*)
     formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    
-    // Prevent excessive math formatting - only format when appropriate
-    if (formatted.length < 500 && formatted.match(/(\d+\s*[\+\-\*\/×÷]\s*\d+|\w+\s*=\s*\d+|solve|equation|formula)/i)) {
-        formatted = formatMathContent(formatted);
-    }
     
     // Convert numbered lists
     formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
@@ -641,25 +609,93 @@ function formatAIResponse(text) {
         formatted = '<p>' + formatted + '</p>';
     }
     
+    // Enhanced image display handling
+    formatted = addImageDisplay(formatted);
+    
     return formatted;
 }
 
-// Format math content with special styling (only for reasonable lengths)
-function formatMathContent(text) {
-    // Only format if text is reasonably short to prevent performance issues
-    if (text.length > 1000) {
-        return text;
+// Enhanced image display handling
+function addImageDisplay(text) {
+    // Look for image generation indicators and format them nicely
+    if (text.includes('🎨 **Educational Image Generated**')) {
+        // Extract image information
+        const imagePattern = /🎨 \*\*Educational Image Generated\*\*.*?Description: (.*?)\n.*?Subject: (.*?)\n.*?Level: (.*?)(?=\n\n|\Z)/gs;
+        let match;
+        while ((match = imagePattern.exec(text)) !== null) {
+            const description = match[1];
+            const subject = match[2];
+            const level = match[3];
+            
+            // Create a nice display for the image
+            const imageBlock = `
+                <div class="image-display-container mt-3 p-3 bg-light rounded border">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        <h6 class="mb-0">Generated Educational Image</h6>
+                    </div>
+                    <div class="image-info mb-2">
+                        <small><strong>Description:</strong> ${description}</small><br>
+                        <small><strong>Subject:</strong> ${subject}</small><br>
+                        <small><strong>Level:</strong> ${level}</small>
+                    </div>
+                    <div class="image-placeholder text-center p-4 bg-white border rounded">
+                        <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                        <p class="mb-0">Educational Image Visualization</p>
+                        <small class="text-muted">Image would appear here when generated</small>
+                    </div>
+                </div>
+            `;
+            
+            // Replace the original text with the formatted image block
+            text = text.replace(match[0], imageBlock);
+        }
     }
     
-    // Simple math formatting for short responses
-    if (text.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
-        // Wrap in math container
-        return `<div class="math-container p-3 bg-light rounded">
-            <div class="math-header text-center mb-2">
-                <i class="fas fa-calculator me-2"></i>Mathematical Solution
-            </div>
-            ${text}
-        </div>`;
+    // Handle Pixabay image display
+    if (text.includes('🎨 **Pixabay Educational Image**')) {
+        const pixabayPattern = /🎨 \*\*Pixabay Educational Image\*\*.*?Description: (.*?)\n.*?Subject: (.*?)\n.*?Level: (.*?)(?=\n\n|\Z)/gs;
+        let match;
+        while ((match = pixabayPattern.exec(text)) !== null) {
+            const description = match[1];
+            const subject = match[2];
+            const level = match[3];
+            
+            const imageBlock = `
+                <div class="image-display-container mt-3 p-3 bg-light rounded border">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fab fa-pixabay text-primary me-2"></i>
+                        <h6 class="mb-0">Pixabay Educational Image</h6>
+                    </div>
+                    <div class="image-info mb-2">
+                        <small><strong>Description:</strong> ${description}</small><br>
+                        <small><strong>Subject:</strong> ${subject}</small><br>
+                        <small><strong>Level:</strong> ${level}</small>
+                    </div>
+                    <div class="image-placeholder text-center p-4 bg-white border rounded">
+                        <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                        <p class="mb-0">Pixabay Educational Image</p>
+                        <small class="text-muted">Vector graphic from Pixabay</small>
+                    </div>
+                </div>
+            `;
+            
+            text = text.replace(match[0], imageBlock);
+        }
+    }
+    
+    // Handle visual aid display
+    if (text.includes('🖼️ **Visual Aid:**')) {
+        // Handle visual aid sections with proper styling
+        text = text.replace(/(🖼️ \*\*Visual Aid:\*\*.*?)(?=\n\n|\Z)/gs, function(match) {
+            return `<div class="visual-aid-section mt-3 p-3 bg-info-subtle rounded border">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-image text-info me-2"></i>
+                    <h6 class="mb-0">Visual Aid</h6>
+                </div>
+                ${match}
+            </div>`;
+        });
     }
     
     return text;
@@ -724,7 +760,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const subjectSelect = document.getElementById('subject');
     const educationLevel = "{{ user.education_level }}";
     const curriculum = "{{ user.curriculum }}";
-    
     // This will be handled by server-side template rendering
     // But we can add dynamic behavior if needed
 });
