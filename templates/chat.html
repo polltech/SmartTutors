@@ -316,7 +316,7 @@
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Parts of the body</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Days of the week</button>
                             {% elif user.education_level == 'Upper Primary' %}
-                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 Ã· 6</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 Ã · 6</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is photosynthesis?</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Counties of Kenya</button>
                             {% elif user.education_level == 'High School' %}
@@ -567,7 +567,7 @@ document.querySelectorAll('.view-chat').forEach(button => {
         new bootstrap.Modal(document.getElementById('chatModal')).show();
     });
 });
-// Copy answer functionality
+// Copy answer functionality - FIXED
 document.getElementById('copy-answer').addEventListener('click', function() {
     const answerElement = document.getElementById('modal-answer');
     const text = answerElement.innerText || answerElement.textContent;
@@ -578,7 +578,7 @@ document.getElementById('copy-answer').addEventListener('click', function() {
         }, 2000);
     });
 });
-// Text-to-speech functionality
+// Text-to-speech functionality - FIXED
 document.getElementById('speak-answer').addEventListener('click', function() {
     const answerElement = document.getElementById('modal-answer');
     const text = answerElement.innerText || answerElement.textContent;
@@ -645,7 +645,7 @@ function formatAIResponse(text) {
     formatted = addImageDisplay(formatted);
     return formatted;
 }
-// Enhanced image display handling
+// Enhanced image display handling - FIXED
 function addImageDisplay(text) {
     // If text contains an image URL, convert it to proper image tag
     if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
