@@ -145,7 +145,13 @@ def chat():
                     education_level=current_user.education_level,
                     subject=subject
                 )
-                answer = f"Here's an educational image related to your question:<br><br>{image_result}"
+                # Properly format the image response for frontend
+                if isinstance(image_result, str) and image_result.startswith('http'):
+                    # If it's already a URL, use it directly
+                    answer = f"<img src='{image_result}' alt='Generated educational image' style='max-width:100%;height:auto;' class='generated-image'><br><br>Here's an educational image related to your question: {question}"
+                else:
+                    # If it's text or not a URL, treat it as description
+                    answer = f"Here's an educational image related to your question:<br><br>{image_result}"
             elif request_type == 'combined':
                 answer = generate_combined_response(
                     topic=question,
