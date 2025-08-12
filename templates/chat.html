@@ -316,7 +316,7 @@
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Parts of the body</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Days of the week</button>
                             {% elif user.education_level == 'Upper Primary' %}
-                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 Ã · 6</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 Ã· 6</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is photosynthesis?</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Counties of Kenya</button>
                             {% elif user.education_level == 'High School' %}
@@ -372,11 +372,7 @@
                             </div>
                             <div class="card-body">
                                 <div id="latest-answer" class="ai-response">
-                                    {% if latest_response.answer and latest_response.answer.startswith('http') %}
-                                        <img src="{{ latest_response.answer }}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">
-                                    {% else %}
-                                        {{ latest_response.answer|safe }}
-                                    {% endif %}
+                                    {{ latest_response.answer|safe }}
                                 </div>
                             </div>
                         </div>
@@ -490,6 +486,7 @@
         });
     }, false);
 })();
+
 // Dynamic interface based on request type
 document.getElementById('request_type').addEventListener('change', function() {
     const requestType = this.value;
@@ -503,158 +500,188 @@ document.getElementById('request_type').addEventListener('change', function() {
     switch(requestType) {
         case 'question':
             questionLabel.textContent = 'Your Question';
-            questionTextarea.placeholder = 'Ask me anything about your studies! For example:
-- Explain photosynthesis in simple terms
-- Help me solve: 2x + 5 = 15
-- What is the capital of Kenya?';
+            questionTextarea.placeholder = 'Ask me anything about your studies! For example:\n- Explain photosynthesis in simple terms\n- Help me solve: 2x + 5 = 15\n- What is the capital of Kenya?';
             submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ask AI Tutor';
             break;
         case 'exam':
             questionLabel.textContent = 'Exam Topic';
-            questionTextarea.placeholder = 'Enter the topic for your exam/quiz. For example:
-- Mathematics - Fractions
-- Science - States of Matter
-- History - Independence of Kenya
-- English - Grammar and Comprehension';
+            questionTextarea.placeholder = 'Enter the topic for your exam/quiz. For example:\n- Mathematics - Fractions\n- Science - States of Matter\n- History - Independence of Kenya\n- English - Grammar and Comprehension';
             examOptions.style.display = 'block';
             submitButton.innerHTML = '<i class="fas fa-file-alt me-2"></i>Generate Exam';
             break;
         case 'explanation':
             questionLabel.textContent = 'Topic to Explain';
-            questionTextarea.placeholder = 'What would you like me to explain in detail? For example:
-- How do plants make food?
-- Steps to solve algebraic equations
-- The water cycle process
-- How to write a good essay';
+            questionTextarea.placeholder = 'What would you like me to explain in detail? For example:\n- How do plants make food?\n- Steps to solve algebraic equations\n- The water cycle process\n- How to write a good essay';
             submitButton.innerHTML = '<i class="fas fa-lightbulb me-2"></i>Get Explanation';
             break;
         case 'image':
             questionLabel.textContent = 'Image Description';
-            questionTextarea.placeholder = 'Describe what educational image you need. For example:
-- A diagram showing parts of a flower
-- Map of Kenya showing all counties
-- Solar system with all planets
-- Water cycle illustration';
+            questionTextarea.placeholder = 'Describe what educational image you need. For example:\n- A diagram showing parts of a flower\n- Map of Kenya showing all counties\n- Solar system with all planets\n- Water cycle illustration';
             submitButton.innerHTML = '<i class="fas fa-image me-2"></i>Generate Educational Image';
             break;
         case 'combined':
             questionLabel.textContent = 'Topic for Explanation with Images';
-            questionTextarea.placeholder = 'What topic should I explain with helpful images? For example:
-- Photosynthesis process with plant diagrams
-- Human digestive system with anatomical illustrations
-- Geometric shapes with visual examples
-- History of Kenya with maps and photos';
+            questionTextarea.placeholder = 'What topic should I explain with helpful images? For example:\n- Photosynthesis process with plant diagrams\n- Human digestive system with anatomical illustrations\n- Geometric shapes with visual examples\n- History of Kenya with maps and photos';
             submitButton.innerHTML = '<i class="fas fa-magic me-2"></i>Create Explanation with Images';
             break;
     }
 });
+
 // Sample questions
 document.querySelectorAll('.sample-question').forEach(button => {
     button.addEventListener('click', function() {
         document.getElementById('question').value = this.textContent;
     });
 });
+
 // View chat functionality - FIXED
 document.querySelectorAll('.view-chat').forEach(button => {
     button.addEventListener('click', function() {
-        const question = this.dataset.question;
-        const answer = this.dataset.answer;
-        const subject = this.dataset.subject;
-        document.getElementById('modal-subject').textContent = subject;
-        document.getElementById('modal-question').textContent = question;
-        // Use formatAIResponse to properly handle images and text
-        document.getElementById('modal-answer').innerHTML = formatAIResponse(answer);
-        new bootstrap.Modal(document.getElementById('chatModal')).show();
+        try {
+            const question = this.dataset.question;
+            const answer = this.dataset.answer;
+            const subject = this.dataset.subject;
+            
+            if (!answer) {
+                console.error('No answer data found');
+                return;
+            }
+            
+            document.getElementById('modal-subject').textContent = subject || 'General';
+            document.getElementById('modal-question').textContent = question || 'No question';
+            
+            // Properly handle the answer data with error handling
+            document.getElementById('modal-answer').innerHTML = formatAIResponse(answer);
+            new bootstrap.Modal(document.getElementById('chatModal')).show();
+        } catch (error) {
+            console.error('Error in view chat:', error);
+            // Show error message to user
+            document.getElementById('modal-answer').innerHTML = '<div class="alert alert-danger">Error loading response. Please try again.</div>';
+            new bootstrap.Modal(document.getElementById('chatModal')).show();
+        }
     });
 });
+
 // Copy answer functionality - FIXED
 document.getElementById('copy-answer').addEventListener('click', function() {
-    const answerElement = document.getElementById('modal-answer');
-    const text = answerElement.innerText || answerElement.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-        setTimeout(() => {
-            this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
-        }, 2000);
-    });
-});
-// Text-to-speech functionality - FIXED
-document.getElementById('speak-answer').addEventListener('click', function() {
-    const answerElement = document.getElementById('modal-answer');
-    const text = answerElement.innerText || answerElement.textContent;
-    if (text) {
-        speakText(text);
-        this.innerHTML = '<i class="fas fa-stop me-1"></i>Stop';
-        setTimeout(() => {
-            this.innerHTML = '<i class="fas fa-volume-up me-1"></i>Read Aloud';
-        }, 3000);
+    try {
+        const answerElement = document.getElementById('modal-answer');
+        const text = answerElement.innerText || answerElement.textContent || '';
+        
+        if (text.trim()) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+            });
+        }
+    } catch (error) {
+        console.error('Copy error:', error);
     }
 });
+
+// Text-to-speech functionality - FIXED
+document.getElementById('speak-answer').addEventListener('click', function() {
+    try {
+        const answerElement = document.getElementById('modal-answer');
+        const text = answerElement.innerText || answerElement.textContent || '';
+        
+        if (text.trim() && typeof speakText === 'function') {
+            speakText(text);
+            this.innerHTML = '<i class="fas fa-stop me-1"></i>Stop';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-volume-up me-1"></i>Read Aloud';
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Speech error:', error);
+    }
+});
+
 // Format AI Response for better visibility and structure
 function formatAIResponse(text) {
     if (!text) return '';
     
-    // Handle direct image URLs first
-    if (typeof text === 'string' && text.startsWith('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
-        return `<img src="${text}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">`;
+    try {
+        // Handle direct image URLs first
+        if (typeof text === 'string' && text.startsWith('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
+            return `<img src="${text}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image rounded">`;
+        }
+        
+        let formatted = text;
+        
+        // Sanitize the text first to prevent XSS
+        formatted = formatted.replace(/</g, '<').replace(/>/g, '>');
+        
+        // Convert headers (## Header)
+        formatted = formatted.replace(/^## (.+)/gm, '<h3 class="text-primary mt-4 mb-3"><i class="fas fa-lightbulb me-2"></i>$1</h3>');
+        
+        // Convert bold text (**text**)
+        formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong class="fw-bold">$1</strong>');
+        
+        // Convert italic text (*text*)
+        formatted = formatted.replace(/\*([^*]+)\*/g, '<em class="fst-italic">$1</em>');
+        
+        // Convert numbered lists
+        formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
+            return `<div class="step-item d-flex mb-2">
+                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 25px; height: 25px; font-size: 12px;">${num}</div>
+                <div class="step-content">${content}</div>
+            </div>`;
+        });
+        
+        // Convert lettered lists
+        formatted = formatted.replace(/^([a-z])\.\s+(.+)/gmi, function(match, letter, content) {
+            return `<div class="step-item d-flex mb-2">
+                <div class="step-letter bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 25px; height: 25px; font-size: 12px;">${letter.toUpperCase()}</div>
+                <div class="step-content">${content}</div>
+            </div>`;
+        });
+        
+        // Convert bullet points
+        formatted = formatted.replace(/^-\s+(.+)/gm, '<li class="mb-1 ps-3"><i class="fas fa-circle-dot me-1 text-primary"></i>$1</li>');
+        
+        // Wrap consecutive <li> elements in <ul>
+        formatted = formatted.replace(/((<li[^>]*>.*?<\/li>\s*)+)/gs, '<ul class="mt-2 mb-3 ps-4">$1</ul>');
+        
+        // Convert line breaks
+        formatted = formatted.replace(/\n\n/g, '</p><p class="mb-3">');
+        formatted = formatted.replace(/\n/g, '<br>');
+        
+        // Wrap in paragraph tags if not already structured
+        if (!formatted.match(/<[h123456]|<div|<ul|<ol/)) {
+            formatted = '<p class="mb-3">' + formatted + '</p>';
+        }
+        
+        // Enhanced image display handling
+        formatted = addImageDisplay(formatted);
+        return formatted;
+    } catch (error) {
+        console.error('Formatting error:', error);
+        // Return original text if formatting fails
+        return '<p class="text-danger">' + text + '</p>';
     }
-    
-    let formatted = text;
-    
-    // Convert headers (## Header)
-    formatted = formatted.replace(/^## (.+)/gm, '<h3 class="text-primary mt-4 mb-3"><i class="fas fa-lightbulb me-2"></i>$1</h3>');
-    
-    // Convert bold text (**text**)
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    
-    // Convert italic text (*text*)
-    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    
-    // Convert numbered lists
-    formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
-        return `<div class="step-item">
-            <div class="step-number">${num}</div>
-            <div class="step-content">${content}</div>
-        </div>`;
-    });
-    
-    // Convert lettered lists
-    formatted = formatted.replace(/^([a-z])\.\s+(.+)/gmi, function(match, letter, content) {
-        return `<div class="step-item">
-            <div class="step-letter">${letter.toUpperCase()}</div>
-            <div class="step-content">${content}</div>
-        </div>`;
-    });
-    
-    // Convert bullet points
-    formatted = formatted.replace(/^-\s+(.+)/gm, '<li class="mb-2">$1</li>');
-    
-    // Wrap consecutive <li> elements in <ul>
-    formatted = formatted.replace(/((<li[^>]*>.*?<\/li>\s*)+)/gs, '<ul class="mt-2 mb-3">$1</ul>');
-    
-    // Convert line breaks
-    formatted = formatted.replace(/\n\n/g, '</p><p>');
-    formatted = formatted.replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph tags if not already structured
-    if (!formatted.match(/<[h123456]|<div|<ul|<ol/)) {
-        formatted = '<p>' + formatted + '</p>';
-    }
-    
-    // Enhanced image display handling
-    formatted = addImageDisplay(formatted);
-    return formatted;
 }
+
 // Enhanced image display handling - FIXED
 function addImageDisplay(text) {
-    // If text contains an image URL, convert it to proper image tag
-    if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
-        // Extract URL pattern and create proper image tag
-        const urlPattern = /(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif))/gi;
-        text = text.replace(urlPattern, '<img src="$1" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">');
+    try {
+        // If text contains an image URL, convert it to proper image tag
+        if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
+            // Extract URL pattern and create proper image tag
+            const urlPattern = /(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif))/gi;
+            text = text.replace(urlPattern, '<img src="$1" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image rounded shadow-sm my-3">');
+        }
+        return text;
+    } catch (error) {
+        console.error('Image display error:', error);
+        return text;
     }
-    return text;
 }
+
 // Enhanced text formatting for better readability
 function enhanceTextReadability() {
     // Add this to make content more visible
@@ -664,6 +691,7 @@ function enhanceTextReadability() {
         element.style.color = '#2c3e50';
     });
 }
+
 // Call enhancement on load
 document.addEventListener('DOMContentLoaded', function() {
     enhanceTextReadability();
@@ -680,6 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
 // Latest response functionality - FIXED
 document.addEventListener('DOMContentLoaded', function() {
     const speakLatest = document.getElementById('speak-latest');
@@ -711,6 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 // Subject selection enhancement
 document.addEventListener('DOMContentLoaded', function() {
     // Update subject options based on curriculum and education level
@@ -719,6 +749,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const curriculum = "{{ user.curriculum }}";
     // This will be handled by server-side template rendering
     // But we can add dynamic behavior if needed
+});
+
+// Add keyboard shortcut for Enter key to submit form
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (submitButton && !submitButton.disabled) {
+            submitButton.click();
+        }
+    }
 });
 </script>
 {% endblock %}
