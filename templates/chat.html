@@ -240,7 +240,7 @@
                                 <label class="form-label">Your Learning Profile</label>
                                 <div class="form-control-plaintext">
                                     <small class="text-muted">
-                                        {{ user.education_level }}     {{ user.curriculum }}
+                                        {{ user.education_level }} â  ¢ {{ user.curriculum }}
                                     </small>
                                 </div>
                             </div>
@@ -316,15 +316,15 @@
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Parts of the body</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Days of the week</button>
                             {% elif user.education_level == 'Upper Primary' %}
-                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 ÷ 6</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve: 24 Ã· 6</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">What is photosynthesis?</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Counties of Kenya</button>
                             {% elif user.education_level == 'High School' %}
-                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve quadratic equation: x² - 5x + 6 = 0</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Solve quadratic equation: xÂ² - 5x + 6 = 0</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain mitosis and meiosis</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Causes of World War I</button>
                             {% elif user.education_level == 'Campus' %}
-                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Calculus: Find derivative of x³ + 2x</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Calculus: Find derivative of xÂ³ + 2x</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Explain quantum mechanics</button>
                                 <button class="btn btn-outline-secondary btn-sm me-2 mb-2 sample-question">Machine learning basics</button>
                             {% else %}
@@ -404,7 +404,7 @@
                                 <div class="chat-meta">
                                     <small class="text-muted">
                                         {% if chat.subject %}
-                                            <i class="fas fa-book me-1"></i>{{ chat.subject }}    
+                                            <i class="fas fa-book me-1"></i>{{ chat.subject }} â  ¢
                                         {% endif %}
                                         <i class="fas fa-clock me-1"></i>{{ chat.created_at.strftime('%b %d, %Y') }}
                                     </small>
@@ -554,7 +554,7 @@ document.querySelectorAll('.sample-question').forEach(button => {
         document.getElementById('question').value = this.textContent;
     });
 });
-// View chat functionality
+// View chat functionality - FIXED
 document.querySelectorAll('.view-chat').forEach(button => {
     button.addEventListener('click', function() {
         const question = this.dataset.question;
@@ -562,14 +562,16 @@ document.querySelectorAll('.view-chat').forEach(button => {
         const subject = this.dataset.subject;
         document.getElementById('modal-subject').textContent = subject;
         document.getElementById('modal-question').textContent = question;
+        // Use formatAIResponse to properly handle images and text
         document.getElementById('modal-answer').innerHTML = formatAIResponse(answer);
         new bootstrap.Modal(document.getElementById('chatModal')).show();
     });
 });
 // Copy answer functionality
 document.getElementById('copy-answer').addEventListener('click', function() {
-    const answer = document.getElementById('modal-answer').textContent;
-    navigator.clipboard.writeText(answer).then(() => {
+    const answerElement = document.getElementById('modal-answer');
+    const text = answerElement.innerText || answerElement.textContent;
+    navigator.clipboard.writeText(text).then(() => {
         this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
         setTimeout(() => {
             this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
@@ -578,9 +580,10 @@ document.getElementById('copy-answer').addEventListener('click', function() {
 });
 // Text-to-speech functionality
 document.getElementById('speak-answer').addEventListener('click', function() {
-    const answer = document.getElementById('modal-answer').textContent;
-    if (answer) {
-        speakText(answer);
+    const answerElement = document.getElementById('modal-answer');
+    const text = answerElement.innerText || answerElement.textContent;
+    if (text) {
+        speakText(text);
         this.innerHTML = '<i class="fas fa-stop me-1"></i>Stop';
         setTimeout(() => {
             this.innerHTML = '<i class="fas fa-volume-up me-1"></i>Read Aloud';
@@ -590,13 +593,23 @@ document.getElementById('speak-answer').addEventListener('click', function() {
 // Format AI Response for better visibility and structure
 function formatAIResponse(text) {
     if (!text) return '';
+    
+    // Handle direct image URLs first - NEW LOGIC
+    if (typeof text === 'string' && text.startsWith('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
+        return `<img src="${text}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">`;
+    }
+    
     let formatted = text;
+    
     // Convert headers (## Header)
     formatted = formatted.replace(/^## (.+)/gm, '<h3 class="text-primary mt-4 mb-3"><i class="fas fa-lightbulb me-2"></i>$1</h3>');
+    
     // Convert bold text (**text**)
     formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
     // Convert italic text (*text*)
     formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
     // Convert numbered lists
     formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
         return `<div class="step-item">
@@ -604,6 +617,7 @@ function formatAIResponse(text) {
             <div class="step-content">${content}</div>
         </div>`;
     });
+    
     // Convert lettered lists
     formatted = formatted.replace(/^([a-z])\.\s+(.+)/gmi, function(match, letter, content) {
         return `<div class="step-item">
@@ -611,22 +625,27 @@ function formatAIResponse(text) {
             <div class="step-content">${content}</div>
         </div>`;
     });
+    
     // Convert bullet points
     formatted = formatted.replace(/^-\s+(.+)/gm, '<li class="mb-2">$1</li>');
+    
     // Wrap consecutive <li> elements in <ul>
     formatted = formatted.replace(/((<li[^>]*>.*?<\/li>\s*)+)/gs, '<ul class="mt-2 mb-3">$1</ul>');
+    
     // Convert line breaks
     formatted = formatted.replace(/\n\n/g, '</p><p>');
     formatted = formatted.replace(/\n/g, '<br>');
+    
     // Wrap in paragraph tags if not already structured
     if (!formatted.match(/<[h123456]|<div|<ul|<ol/)) {
         formatted = '<p>' + formatted + '</p>';
     }
-    // Enhanced image display handling
+    
+    // Enhanced image display handling - IMPROVED LOGIC
     formatted = addImageDisplay(formatted);
     return formatted;
 }
-// Enhanced image display handling
+// Enhanced image display handling - IMPROVED VERSION
 function addImageDisplay(text) {
     // If text contains an image URL, convert it to proper image tag
     if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
@@ -651,17 +670,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Format the latest response if it exists
     const latestAnswer = document.getElementById('latest-answer');
     if (latestAnswer) {
-        latestAnswer.innerHTML = formatAIResponse(latestAnswer.textContent);
+        // For the latest response, ensure it handles both images and text properly
+        const answerContent = latestAnswer.innerHTML;
+        if (answerContent.includes('<img') || answerContent.includes('http')) {
+            // Already has image or URL, leave as is
+        } else {
+            // Format text response
+            latestAnswer.innerHTML = formatAIResponse(answerContent);
+        }
     }
 });
-// Latest response functionality
+// Latest response functionality - FIXED
 document.addEventListener('DOMContentLoaded', function() {
     const speakLatest = document.getElementById('speak-latest');
     const copyLatest = document.getElementById('copy-latest');
     const latestAnswer = document.getElementById('latest-answer');
+    
     if (speakLatest && latestAnswer) {
         speakLatest.addEventListener('click', function() {
-            const text = latestAnswer.textContent;
+            const text = latestAnswer.innerText || latestAnswer.textContent;
             if (text && typeof speakText === 'function') {
                 speakText(text);
                 this.innerHTML = '<i class="fas fa-stop"></i>';
@@ -671,9 +698,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
     if (copyLatest && latestAnswer) {
         copyLatest.addEventListener('click', function() {
-            const text = latestAnswer.textContent;
+            const text = latestAnswer.innerText || latestAnswer.textContent;
             navigator.clipboard.writeText(text).then(() => {
                 this.innerHTML = '<i class="fas fa-check"></i>';
                 setTimeout(() => {
