@@ -571,165 +571,96 @@ def add_interactive_elements(text):
 
 def generate_image(description, education_level, subject=None):
     """
-    Generate educational image based on description using all available APIs
+    Generate educational image using multiple fallback APIs
     """
     try:
-        # First try to use Hugging Face if available
-        if os.environ.get('HF_TOKEN') or get_current_api_keys().get('hf_token'):
-            return generate_image_hugging_face(description, education_level, subject)
-        
-        # Then try other APIs
-        if os.environ.get('PIXABAY_API_KEY') or get_current_api_keys().get('pixabay_key'):
-            return generate_image_pixabay(description, education_level, subject)
-        
-        # Then try Unsplash
-        if os.environ.get('UNSPLASH_API_KEY') or get_current_api_keys().get('unsplash_key'):
-            return generate_image_unsplash(description, education_level, subject)
-        
-        # Then try Pexels
-        if os.environ.get('PEXELS_API_KEY') or get_current_api_keys().get('pexels_key'):
-            return generate_image_pexels(description, education_level, subject)
-        
-        # Fallback to generic educational image generation
-        return generate_generic_educational_image(description, education_level, subject)
-        
-    except Exception as e:
-        logging.error(f"Error generating image: {e}")
-        return f"<div class='alert alert-warning'><i class='fas fa-exclamation-triangle me-2'></i>Could not generate image. Error: {str(e)}</div>"
+        # Try Hugging Face first
+        try:
+            hf_token = os.environ.get('HF_TOKEN') or get_current_api_keys().get('hf_token')
+            if hf_token:
+                # Use Hugging Face API with stable diffusion
+                from huggingface_hub import InferenceApi
+                api = InferenceApi(repo_id="stabilityai/stable-diffusion-2-1", token=hf_token)
+                response = api(inputs=description, parameters={"width": 512, "height": 512})
+                
+                # Check if we got a proper response
+                if hasattr(response, 'url'):
+                    return response.url
+                elif isinstance(response, dict) and 'url' in response:
+                    return response['url']
+                elif isinstance(response, str) and response.startswith('http'):
+                    return response
+                elif isinstance(response, bytes):
+                    # Convert bytes to base64 image URL for display
+                    return f"data:image/png;base64,{base64.b64encode(response).decode('utf-8')}"
+        except Exception as e:
+            logging.warning(f"Hugging Face API failed: {e}")
+            pass  # Continue to next fallback
 
-def generate_image_hugging_face(description, education_level, subject):
-    """
-    Generate educational image using Hugging Face
-    """
-    try:
-        # This would use diffusers to generate an image
-        # For demo purposes, we'll return a placeholder with proper HTML
-        return f"""
-        <div class="image-generation-result">
-            <div class="image-placeholder text-center p-4 bg-light rounded border">
-                <i class="fas fa-image fa-3x text-primary mb-3"></i>
-                <h5 class="text-primary">AI-Generated Image</h5>
-                <p><strong>Description:</strong> {description}</p>
-                <p><strong>Subject:</strong> {subject or 'General'}</p>
-                <p><strong>Level:</strong> {education_level}</p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Generated using Hugging Face models
-                    </small>
-                </div>
-            </div>
-        </div>
-        """
-    except Exception as e:
-        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error generating Hugging Face image: {str(e)}</div>"
+        # Try Pixabay as fallback
+        try:
+            pixabay_key = os.environ.get('PIXABAY_API_KEY') or get_current_api_keys().get('pixabay_key')
+            if pixabay_key:
+                import requests
+                url = "https://pixabay.com/api/"
+                params = {
+                    'key': pixabay_key,
+                    'q': description,
+                    'image_type': 'photo',
+                    'per_page': 1
+                }
+                response = requests.get(url, params=params)
+                data = response.json()
+                if data.get('hits'):
+                    return data['hits'][0]['webformatURL']
+        except Exception as e:
+            logging.warning(f"Pixabay API failed: {e}")
+            pass  # Continue to next fallback
 
-def generate_image_pixabay(description, education_level, subject):
-    """
-    Generate educational image using Pixabay API
-    """
-    try:
-        # This would make an API call to Pixabay
-        # For demo purposes, we'll return a placeholder with proper HTML
-        return f"""
-        <div class="image-generation-result">
-            <div class="image-placeholder text-center p-4 bg-light rounded border">
-                <i class="fab fa-pixabay fa-3x text-primary mb-3"></i>
-                <h5 class="text-primary">Pixabay Educational Image</h5>
-                <p><strong>Description:</strong> {description}</p>
-                <p><strong>Subject:</strong> {subject or 'General'}</p>
-                <p><strong>Level:</strong> {education_level}</p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Vector graphic from Pixabay
-                    </small>
-                </div>
-            </div>
-        </div>
-        """
-    except Exception as e:
-        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Pixabay image: {str(e)}</div>"
+        # Try Unsplash as fallback
+        try:
+            unsplash_key = os.environ.get('UNSPLASH_ACCESS_KEY') or get_current_api_keys().get('unsplash_key')
+            if unsplash_key:
+                import requests
+                url = "https://api.unsplash.com/search/photos"
+                params = {
+                    'query': description,
+                    'per_page': 1,
+                    'client_id': unsplash_key
+                }
+                response = requests.get(url, params=params)
+                data = response.json()
+                if data.get('results'):
+                    return data['results'][0]['urls']['regular']
+        except Exception as e:
+            logging.warning(f"Unsplash API failed: {e}")
+            pass  # Continue to next fallback
 
-def generate_image_unsplash(description, education_level, subject):
-    """
-    Generate educational image using Unsplash API
-    """
-    try:
-        # This would make an API call to Unsplash
-        # For demo purposes, we'll return a placeholder with proper HTML
-        return f"""
-        <div class="image-generation-result">
-            <div class="image-placeholder text-center p-4 bg-light rounded border">
-                <i class="fab fa-unsplash fa-3x text-dark mb-3"></i>
-                <h5 class="text-dark">Unsplash Educational Image</h5>
-                <p><strong>Description:</strong> {description}</p>
-                <p><strong>Subject:</strong> {subject or 'General'}</p>
-                <p><strong>Level:</strong> {education_level}</p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Photo from Unsplash
-                    </small>
-                </div>
-            </div>
-        </div>
-        """
-    except Exception as e:
-        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Unsplash image: {str(e)}</div>"
+        # Try Pexels as fallback
+        try:
+            pexels_key = os.environ.get('PEXELS_API_KEY') or get_current_api_keys().get('pexels_key')
+            if pexels_key:
+                import requests
+                url = "https://api.pexels.com/v1/search"
+                headers = {'Authorization': pexels_key}
+                params = {'query': description, 'per_page': 1}
+                response = requests.get(url, headers=headers, params=params)
+                data = response.json()
+                if data.get('photos'):
+                    return data['photos'][0]['src']['medium']
+        except Exception as e:
+            logging.warning(f"Pexels API failed: {e}")
+            pass  # Continue to next fallback
 
-def generate_image_pexels(description, education_level, subject):
-    """
-    Generate educational image using Pexels API
-    """
-    try:
-        # This would make an API call to Pexels
-        # For demo purposes, we'll return a placeholder with proper HTML
-        return f"""
-        <div class="image-generation-result">
-            <div class="image-placeholder text-center p-4 bg-light rounded border">
-                <i class="fab fa-pexels fa-3x text-green mb-3"></i>
-                <h5 class="text-green">Pexels Educational Image</h5>
-                <p><strong>Description:</strong> {description}</p>
-                <p><strong>Subject:</strong> {subject or 'General'}</p>
-                <p><strong>Level:</strong> {education_level}</p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Photo from Pexels
-                    </small>
-                </div>
-            </div>
-        </div>
-        """
-    except Exception as e:
-        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error fetching Pexels image: {str(e)}</div>"
+        # If all APIs fail, return a placeholder image URL that will display properly
+        import urllib.parse
+        encoded_desc = urllib.parse.quote(description[:100])
+        return f"https://placehold.co/600x400/4A90E2/FFFFFF?text={encoded_desc}"
 
-def generate_generic_educational_image(description, education_level, subject):
-    """
-    Generate a generic educational image representation
-    """
-    try:
-        # Return a placeholder with educational styling
-        return f"""
-        <div class="image-generation-result">
-            <div class="image-placeholder text-center p-4 bg-light rounded border">
-                <i class="fas fa-image fa-4x text-info mb-3"></i>
-                <h5 class="text-info">Educational Image</h5>
-                <p><strong>Description:</strong> {description}</p>
-                <p><strong>Subject:</strong> {subject or 'General'}</p>
-                <p><strong>Level:</strong> {education_level}</p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        <i class="fas fa-lightbulb me-1"></i>
-                        This would be an actual educational image
-                    </small>
-                </div>
-            </div>
-        </div>
-        """
     except Exception as e:
-        return f"<div class='alert alert-danger'><i class='fas fa-exclamation-triangle me-2'></i>Error generating educational image: {str(e)}</div>"
+        logging.error(f"Error in generate_image function: {e}")
+        # Return a fallback error image URL
+        return f"https://placehold.co/600x400/FF6B6B/FFFFFF?text=Error+Generating+Image"
 
 def update_api_keys_from_admin(hf_token=None, pixabay_key=None, unsplash_key=None, pexels_key=None, gemini_key=None):
     """
