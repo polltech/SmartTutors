@@ -240,7 +240,7 @@
                                 <label class="form-label">Your Learning Profile</label>
                                 <div class="form-control-plaintext">
                                     <small class="text-muted">
-                                        {{ user.education_level }} • {{ user.curriculum }}
+                                        {{ user.education_level }}     {{ user.curriculum }}
                                     </small>
                                 </div>
                             </div>
@@ -372,7 +372,11 @@
                             </div>
                             <div class="card-body">
                                 <div id="latest-answer" class="ai-response">
-                                    {{ latest_response.answer|safe }}
+                                    {% if latest_response.answer and latest_response.answer.startswith('http') %}
+                                        <img src="{{ latest_response.answer }}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">
+                                    {% else %}
+                                        {{ latest_response.answer|safe }}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -400,7 +404,7 @@
                                 <div class="chat-meta">
                                     <small class="text-muted">
                                         {% if chat.subject %}
-                                            <i class="fas fa-book me-1"></i>{{ chat.subject }} •
+                                            <i class="fas fa-book me-1"></i>{{ chat.subject }}    
                                         {% endif %}
                                         <i class="fas fa-clock me-1"></i>{{ chat.created_at.strftime('%b %d, %Y') }}
                                     </small>
@@ -499,28 +503,47 @@ document.getElementById('request_type').addEventListener('change', function() {
     switch(requestType) {
         case 'question':
             questionLabel.textContent = 'Your Question';
-            questionTextarea.placeholder = 'Ask me anything about your studies! For example:\n- Explain photosynthesis in simple terms\n- Help me solve: 2x + 5 = 15\n- What is the capital of Kenya?';
+            questionTextarea.placeholder = 'Ask me anything about your studies! For example:
+- Explain photosynthesis in simple terms
+- Help me solve: 2x + 5 = 15
+- What is the capital of Kenya?';
             submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Ask AI Tutor';
             break;
         case 'exam':
             questionLabel.textContent = 'Exam Topic';
-            questionTextarea.placeholder = 'Enter the topic for your exam/quiz. For example:\n- Mathematics - Fractions\n- Science - States of Matter\n- History - Independence of Kenya\n- English - Grammar and Comprehension';
+            questionTextarea.placeholder = 'Enter the topic for your exam/quiz. For example:
+- Mathematics - Fractions
+- Science - States of Matter
+- History - Independence of Kenya
+- English - Grammar and Comprehension';
             examOptions.style.display = 'block';
             submitButton.innerHTML = '<i class="fas fa-file-alt me-2"></i>Generate Exam';
             break;
         case 'explanation':
             questionLabel.textContent = 'Topic to Explain';
-            questionTextarea.placeholder = 'What would you like me to explain in detail? For example:\n- How do plants make food?\n- Steps to solve algebraic equations\n- The water cycle process\n- How to write a good essay';
+            questionTextarea.placeholder = 'What would you like me to explain in detail? For example:
+- How do plants make food?
+- Steps to solve algebraic equations
+- The water cycle process
+- How to write a good essay';
             submitButton.innerHTML = '<i class="fas fa-lightbulb me-2"></i>Get Explanation';
             break;
         case 'image':
             questionLabel.textContent = 'Image Description';
-            questionTextarea.placeholder = 'Describe what educational image you need. For example:\n- A diagram showing parts of a flower\n- Map of Kenya showing all counties\n- Solar system with all planets\n- Water cycle illustration';
+            questionTextarea.placeholder = 'Describe what educational image you need. For example:
+- A diagram showing parts of a flower
+- Map of Kenya showing all counties
+- Solar system with all planets
+- Water cycle illustration';
             submitButton.innerHTML = '<i class="fas fa-image me-2"></i>Generate Educational Image';
             break;
         case 'combined':
             questionLabel.textContent = 'Topic for Explanation with Images';
-            questionTextarea.placeholder = 'What topic should I explain with helpful images? For example:\n- Photosynthesis process with plant diagrams\n- Human digestive system with anatomical illustrations\n- Geometric shapes with visual examples\n- History of Kenya with maps and photos';
+            questionTextarea.placeholder = 'What topic should I explain with helpful images? For example:
+- Photosynthesis process with plant diagrams
+- Human digestive system with anatomical illustrations
+- Geometric shapes with visual examples
+- History of Kenya with maps and photos';
             submitButton.innerHTML = '<i class="fas fa-magic me-2"></i>Create Explanation with Images';
             break;
     }
@@ -568,16 +591,12 @@ document.getElementById('speak-answer').addEventListener('click', function() {
 function formatAIResponse(text) {
     if (!text) return '';
     let formatted = text;
-    
     // Convert headers (## Header)
     formatted = formatted.replace(/^## (.+)/gm, '<h3 class="text-primary mt-4 mb-3"><i class="fas fa-lightbulb me-2"></i>$1</h3>');
-    
     // Convert bold text (**text**)
     formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    
     // Convert italic text (*text*)
     formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    
     // Convert numbered lists
     formatted = formatted.replace(/^(\d+)\.\s+(.+)/gm, function(match, num, content) {
         return `<div class="step-item">
@@ -585,7 +604,6 @@ function formatAIResponse(text) {
             <div class="step-content">${content}</div>
         </div>`;
     });
-    
     // Convert lettered lists
     formatted = formatted.replace(/^([a-z])\.\s+(.+)/gmi, function(match, letter, content) {
         return `<div class="step-item">
@@ -593,42 +611,31 @@ function formatAIResponse(text) {
             <div class="step-content">${content}</div>
         </div>`;
     });
-    
     // Convert bullet points
     formatted = formatted.replace(/^-\s+(.+)/gm, '<li class="mb-2">$1</li>');
-    
     // Wrap consecutive <li> elements in <ul>
     formatted = formatted.replace(/((<li[^>]*>.*?<\/li>\s*)+)/gs, '<ul class="mt-2 mb-3">$1</ul>');
-    
     // Convert line breaks
     formatted = formatted.replace(/\n\n/g, '</p><p>');
     formatted = formatted.replace(/\n/g, '<br>');
-    
     // Wrap in paragraph tags if not already structured
     if (!formatted.match(/<[h123456]|<div|<ul|<ol/)) {
         formatted = '<p>' + formatted + '</p>';
     }
-    
     // Enhanced image display handling
     formatted = addImageDisplay(formatted);
-    
     return formatted;
 }
-
 // Enhanced image display handling
 function addImageDisplay(text) {
-    // Look for image generation indicators and format them nicely
-    if (text.includes('🎨 Educational Visual Representation') || 
-        text.includes('🎨 Educational Image Generated') ||
-        text.includes('🎨 Pixabay Educational Image')) {
-        // This is where we would process image generation results
-        // For now, we'll just make sure the text displays properly
-        return text;
+    // If text contains an image URL, convert it to proper image tag
+    if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
+        // Extract URL pattern and create proper image tag
+        const urlPattern = /(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif))/gi;
+        text = text.replace(urlPattern, '<img src="$1" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">');
     }
-    
     return text;
 }
-
 // Enhanced text formatting for better readability
 function enhanceTextReadability() {
     // Add this to make content more visible
@@ -638,24 +645,20 @@ function enhanceTextReadability() {
         element.style.color = '#2c3e50';
     });
 }
-
 // Call enhancement on load
 document.addEventListener('DOMContentLoaded', function() {
     enhanceTextReadability();
-    
     // Format the latest response if it exists
     const latestAnswer = document.getElementById('latest-answer');
     if (latestAnswer) {
         latestAnswer.innerHTML = formatAIResponse(latestAnswer.textContent);
     }
 });
-
 // Latest response functionality
 document.addEventListener('DOMContentLoaded', function() {
     const speakLatest = document.getElementById('speak-latest');
     const copyLatest = document.getElementById('copy-latest');
     const latestAnswer = document.getElementById('latest-answer');
-    
     if (speakLatest && latestAnswer) {
         speakLatest.addEventListener('click', function() {
             const text = latestAnswer.textContent;
@@ -668,7 +671,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
     if (copyLatest && latestAnswer) {
         copyLatest.addEventListener('click', function() {
             const text = latestAnswer.textContent;
@@ -681,7 +683,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
 // Subject selection enhancement
 document.addEventListener('DOMContentLoaded', function() {
     // Update subject options based on curriculum and education level
