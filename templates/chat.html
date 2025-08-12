@@ -594,7 +594,7 @@ document.getElementById('speak-answer').addEventListener('click', function() {
 function formatAIResponse(text) {
     if (!text) return '';
     
-    // Handle direct image URLs first - NEW LOGIC
+    // Handle direct image URLs first
     if (typeof text === 'string' && text.startsWith('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
         return `<img src="${text}" alt="Generated educational image" style="max-width:100%;height:auto;" class="generated-image">`;
     }
@@ -641,11 +641,11 @@ function formatAIResponse(text) {
         formatted = '<p>' + formatted + '</p>';
     }
     
-    // Enhanced image display handling - IMPROVED LOGIC
+    // Enhanced image display handling
     formatted = addImageDisplay(formatted);
     return formatted;
 }
-// Enhanced image display handling - IMPROVED VERSION
+// Enhanced image display handling
 function addImageDisplay(text) {
     // If text contains an image URL, convert it to proper image tag
     if (text && typeof text === 'string' && text.includes('http') && (text.includes('.jpg') || text.includes('.png') || text.includes('.jpeg') || text.includes('.gif'))) {
@@ -670,12 +670,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Format the latest response if it exists
     const latestAnswer = document.getElementById('latest-answer');
     if (latestAnswer) {
-        // For the latest response, ensure it handles both images and text properly
+        // Handle both cases - images and text
         const answerContent = latestAnswer.innerHTML;
         if (answerContent.includes('<img') || answerContent.includes('http')) {
-            // Already has image or URL, leave as is
+            // Already has image, leave as is
         } else {
-            // Format text response
+            // Format text content
             latestAnswer.innerHTML = formatAIResponse(answerContent);
         }
     }
